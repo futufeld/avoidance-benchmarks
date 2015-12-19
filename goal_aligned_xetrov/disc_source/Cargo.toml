@@ -1,0 +1,24 @@
+[package]
+name = "disc_source"
+version = "0.1.0"
+authors = ["Shannon Pace <futufeld@gmail.com>"]
+
+[[bin]]
+name = "main"
+path = "main.rs"
+test = false
+docs = false
+
+[lib]
+name = "disc_source"
+path = "lib.rs"
+
+[dependencies.linalg]
+path = "../../linalg"
+
+[dependencies.utilities]
+path = "../../utilities"
+
+[dependencies]
+rand = "0.3"
+time = "*"
