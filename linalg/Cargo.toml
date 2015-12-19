@@ -1,0 +1,8 @@
+[package]
+name = "linalg"
+version = "0.1.0"
+authors = ["Shannon Pace <futufeld@gmail.com>"]
+
+[lib]
+name = "linalg"
+path = "lib.rs"
