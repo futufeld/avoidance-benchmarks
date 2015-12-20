@@ -20,14 +20,13 @@ const FEELER_LENGTH: f64 = 10f64;
 const FEELER_WIDTH: f64 = 2f64;
 
 // Used to indicate scenario type.
-enum ScenarioType { Case1, Case2, Case3 }
+enum ScenarioType { Case1, Case2 }
 
 // Returns the string defined by the given scenario type.
 fn label(case: ScenarioType, num_obstacles: u32) -> String {
     match case {
         ScenarioType::Case1 => format!("case1-{}", num_obstacles),
-        ScenarioType::Case2 => format!("case2-{}", num_obstacles),
-        ScenarioType::Case3 => format!("case3-{}", num_obstacles)
+        ScenarioType::Case2 => format!("case2-{}", num_obstacles)
     }
 }
 
@@ -35,8 +34,7 @@ fn label(case: ScenarioType, num_obstacles: u32) -> String {
 fn time_case(case: ScenarioType, num_obstacles: u32) -> LabelledBatch {
     let scenario: fn(u32, f64, f64) -> Scenario = match case {
         ScenarioType::Case1 => case1_scenario,
-        ScenarioType::Case2 => case2_scenario,
-        ScenarioType::Case3 => case3_scenario
+        ScenarioType::Case2 => case2_scenario
     };
     let creator = || -> Box<HasScenario> {
         Box::new(scenario(num_obstacles, FEELER_LENGTH, FEELER_WIDTH))
@@ -52,7 +50,6 @@ fn main() {
         for num_obstacles in 1..6 {
             results.push(time_case(ScenarioType::Case1, num_obstacles));
             results.push(time_case(ScenarioType::Case2, num_obstacles));
-            results.push(time_case(ScenarioType::Case3, num_obstacles));
         }
 
         match get_filepath() {

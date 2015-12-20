@@ -76,49 +76,34 @@ impl Feeler {
     }
 
     // Returns the interaction between this feeler and the given circle.
-    pub fn obstacle_intersections(&self, circle: &Circle) -> FeelerResult {
-        // Determine if an intersection is occurring.
+    pub fn obstacle_intersections(&self, circle: &Circle)
+        -> Option<Interaction>
+    {
         let local_centre = self.to_local.transform(circle.centre);
-        let in_x = local_centre.x >= 0f64 && local_centre.x <= self.length;
-        let in_y = local_centre.y.abs() - circle.radius <= self.width;
-        if !in_x || !in_y { return FeelerResult::Case1 };
-
-        // If the circle is already inside the feeler volume, return the
-        // nearest point on that circle to the origin of the feeler.
-        if local_centre.y.abs() < self.width {
-            let mut x = local_centre.x - circle.radius;
-            if x < 0f64 { x = 0f64 };
-            let point = Vec2D::new(x, local_centre.y);
-            let int = Interaction::new(point, local_centre, circle.radius);
-            return FeelerResult::Case3(int);
+        if local_centre.y.abs() > circle.radius + self.width {
+            return None;
         }
 
-        // The centre of the circle lies outside the feeler volume but
-        // intersects it. Return the nearest point of intersection on the
-        // longitudinal edges of the feeler.
-        let r2 = circle.radius * circle.radius;
-        let point = if local_centre.y > 0f64 {
-            let y = self.width + local_centre.y;
-            let x = -self.length * (local_centre.x + (r2 - (y*y)).sqrt());
-            Vec2D::new(x, self.width)
+        let r2 = (circle.radius + self.width) * (circle.radius + self.width);
+        let y2 = local_centre.y * local_centre.y;
+        let x = -self.length * (local_centre.x + (r2 - y2).sqrt());
+        let local_point = if x < 0f64 {
+            Vec2D::zero()
         } else {
-            let y = -self.width - local_centre.y;
-            let x = -self.length * (local_centre.x + (r2 - (y*y)).sqrt());
-            Vec2D::new(x, -self.width)
+            Vec2D::new(x, 0f64)
         };
-        let int = Interaction::new(point, local_centre, circle.radius);
-        FeelerResult::Case2(int)
+        Some(Interaction::new(local_point, local_centre, circle.radius))
     }
 
-    //
+    // Determines the steering required to avoid the nearest of a collection
+    // of circular obstacles.
     pub fn steering(&self, circles: &Vec<Circle>) -> Option<Vec2D> {
         // Collect interactions between feeler and circles.
         let mut interactions = vec!();
         for circle in circles.iter() {
             match self.obstacle_intersections(circle) {
-                FeelerResult::Case1 => (),
-                FeelerResult::Case2(x) => interactions.push(x),
-                FeelerResult::Case3(x) => interactions.push(x)
+                Some(x) => interactions.push(x),
+                None => ()
             }
         }
 
