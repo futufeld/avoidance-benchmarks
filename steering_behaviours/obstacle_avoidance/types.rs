@@ -76,9 +76,7 @@ impl Feeler {
     }
 
     // Returns the interaction between this feeler and the given circle.
-    pub fn obstacle_intersections(&self, circle: &Circle)
-        -> Option<Interaction>
-    {
+    pub fn intersection(&self, circle: &Circle) -> Option<Interaction> {
         let local_centre = self.to_local.transform(circle.centre);
         if local_centre.y.abs() > circle.radius + self.width {
             return None;
@@ -101,7 +99,7 @@ impl Feeler {
         // Collect interactions between feeler and circles.
         let mut interactions = vec!();
         for circle in circles.iter() {
-            match self.obstacle_intersections(circle) {
+            match self.intersection(circle) {
                 Some(x) => interactions.push(x),
                 None => ()
             }

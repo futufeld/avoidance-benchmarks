@@ -17,7 +17,7 @@ pub fn test_scenarios<F, G>( num_scenarios: u32
     for _ in 0..num_scenarios {
         let scenario = scenario_creator();
         for circle in scenario.circles.iter() {
-            let result = scenario.feeler.obstacle_intersections(circle);
+            let result = scenario.feeler.intersection(circle);
             success = success && result_expected(result);
         }
     }

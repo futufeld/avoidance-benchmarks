@@ -55,11 +55,11 @@ impl Vec2D {
 
     pub fn mag(&self) -> f64 {
         let mag = self.mag_sq();
-        if mag < EPSILON {
-            mag
-        } else {
-            mag.sqrt()
-        }
+        if mag < EPSILON { mag } else { mag.sqrt() }
+    }
+
+    pub fn dot(&self, v: Vec2D) -> f64 {
+        self.x * v.x + self.y * v.y
     }
 
     pub fn perp(&self) -> Vec2D {

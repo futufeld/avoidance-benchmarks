@@ -35,8 +35,8 @@ fn random_unity() -> f64 {
     Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
 }
 
-// Returns a feeler with a random position and orientation with the given
-// length and width.
+// Returns a feeler with a semi-random position and orientation with the
+// given length and width.
 fn random_feeler(length: f64, width: f64) -> Feeler {
     let angle = 2f64 * PI * random_unity();
     let pos = Vec2D::polar(angle, 100f64);
