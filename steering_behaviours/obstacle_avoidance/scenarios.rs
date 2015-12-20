@@ -39,12 +39,12 @@ fn random_unity() -> f64 {
 // length and width.
 fn random_feeler(length: f64, width: f64) -> Feeler {
     let angle = 2f64 * PI * random_unity();
-    let pos = Vec2D::new(angle, 100f64);
+    let pos = Vec2D::polar(angle, 100f64);
     let ori = random_unity() * 2f64 * PI;
     Feeler::new(pos, ori, length, width)
 }
 
-//
+// Helper for creating circles near the given feeler.
 fn circle_near_feeler(feeler: &Feeler, offset: f64) -> Circle {
     let local_x = feeler.length * random_unity();
     let radius = feeler.width * random_unity();
