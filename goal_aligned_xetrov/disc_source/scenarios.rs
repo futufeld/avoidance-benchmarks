@@ -16,7 +16,7 @@ pub struct Scenario {
 
 impl HasScenario for Scenario {
     // Runs the scenario.
-    fn run(&self) {
+    fn run(&mut self) {
         let _ = self.disc.source(self.sample);
     }
 }

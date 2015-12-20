@@ -23,35 +23,37 @@ const FEELER_WIDTH: f64 = 2f64;
 enum ScenarioType { Case1, Case2, Case3 }
 
 // Returns the string defined by the given scenario type.
-fn label(case: ScenarioType) -> String {
+fn label(case: ScenarioType, num_obstacles: u32) -> String {
     match case {
-        ScenarioType::Case1 => format!("case1"),
-        ScenarioType::Case2 => format!("case2"),
-        ScenarioType::Case3 => format!("case3")
+        ScenarioType::Case1 => format!("case1-{}", num_obstacles),
+        ScenarioType::Case2 => format!("case2-{}", num_obstacles),
+        ScenarioType::Case3 => format!("case3-{}", num_obstacles)
     }
 }
 
 // Invokes test handler using the specified scenario type.
-fn time_case(case: ScenarioType) -> LabelledBatch {
-    let scenario: fn(f64, f64) -> Scenario = match case {
+fn time_case(case: ScenarioType, num_obstacles: u32) -> LabelledBatch {
+    let scenario: fn(u32, f64, f64) -> Scenario = match case {
         ScenarioType::Case1 => case1_scenario,
         ScenarioType::Case2 => case2_scenario,
         ScenarioType::Case3 => case3_scenario
     };
     let creator = || -> Box<HasScenario> {
-        Box::new(scenario(FEELER_LENGTH, FEELER_WIDTH))
+        Box::new(scenario(num_obstacles, FEELER_LENGTH, FEELER_WIDTH))
     };
     let batch = time_batch(creator, NUM_RUNS, NUM_BATCHES);
-    LabelledBatch::new(label(case), batch)
+    LabelledBatch::new(label(case, num_obstacles), batch)
 }
 
 // Starts benchmarks and writes results to file.
 fn main() {
     let run = || {
         let mut results = vec!();
-        results.push(time_case(ScenarioType::Case1));
-        results.push(time_case(ScenarioType::Case2));
-        results.push(time_case(ScenarioType::Case3));
+        for num_obstacles in 1..6 {
+            results.push(time_case(ScenarioType::Case1, num_obstacles));
+            results.push(time_case(ScenarioType::Case2, num_obstacles));
+            results.push(time_case(ScenarioType::Case3, num_obstacles));
+        }
 
         match get_filepath() {
             Some(filestring) => {

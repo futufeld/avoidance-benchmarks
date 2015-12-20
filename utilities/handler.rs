@@ -23,16 +23,7 @@ impl LabelledBatch {
 
 // For structs that execute scenarios.
 pub trait HasScenario {
-    fn run(&self);
-}
-
-// Times the execution of the given function in microseconds.
-pub fn time_execution_micro<F>(to_execute :F) -> Option<i64>
-    where F: Fn() -> ()
-{
-    let start = PreciseTime::now();
-    to_execute();
-    start.to(PreciseTime::now()).num_microseconds()
+    fn run(&mut self);
 }
 
 // Times the execution of the given function in seconds.
@@ -52,8 +43,10 @@ pub fn time_batch<F>(creator: F, num_runs: u32, num_batches: u32) -> Batch
     for _ in 0..num_batches {
         let mut scenarios: Vec<Box<HasScenario>> = vec!();
         for _ in 0..num_runs { scenarios.push(creator()) };
-        let f = || for scenario in scenarios.iter() { scenario.run() };
-        timing.push(time_execution_micro(f).unwrap())
+        let start = PreciseTime::now();
+        for s in scenarios.iter_mut() { s.run() };
+        let elapsed = start.to(PreciseTime::now());
+        timing.push(elapsed.num_microseconds().unwrap())
     };
     Batch { num_runs: num_runs, run_times: timing }
 }

@@ -26,9 +26,11 @@ impl Disc {
     pub fn source(&self, v: Vec2D) -> SourceResult {
         let local = self.to_local.transform(v);
         let mag = local.mag();
-        let source = if mag <= self.radius { v } else {
-            local.mul(self.radius / mag)
-        };
-        SourceResult::Case2(self.to_world.transform(source))
+        if mag <= self.radius {
+            SourceResult::Case1(self.to_world.transform(v))
+        } else {
+            let source = local.mul(self.radius / mag);
+            SourceResult::Case2(self.to_world.transform(source))
+        }
     }
 }

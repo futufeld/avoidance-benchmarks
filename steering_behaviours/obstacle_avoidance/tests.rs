@@ -14,7 +14,8 @@ pub fn test_scenarios<F, G>( num_scenarios: u32
     where F: Fn() -> Scenario, G: Fn(FeelerResult) -> bool
 {
     let mut success = true;
-    for scenario in create_scenarios(num_scenarios, scenario_creator).iter() {
+    for _ in 0..num_scenarios {
+        let scenario = scenario_creator();
         for circle in scenario.circles.iter() {
             let result = scenario.feeler.obstacle_intersections(circle);
             success = success && result_expected(result);
