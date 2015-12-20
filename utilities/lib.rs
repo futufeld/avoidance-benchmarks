@@ -1,9 +1,10 @@
-#![feature(custom_derive,plugin)]
+#![feature(custom_derive, plugin, test)]
 #![plugin(serde_macros)]
 
 extern crate getopts;
 extern crate serde;
 extern crate serde_json;
+extern crate test;
 extern crate time;
 
 pub mod handler;

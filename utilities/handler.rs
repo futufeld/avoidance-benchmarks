@@ -1,3 +1,4 @@
+use super::test::black_box;
 use super::time::PreciseTime;
 
 // Contains details and results of a batch of benchmarks.
@@ -31,7 +32,7 @@ pub fn time_execution_seconds<F>(to_execute :F) -> i64
     where F: Fn() -> ()
 {
     let start = PreciseTime::now();
-    to_execute();
+    black_box(to_execute());
     start.to(PreciseTime::now()).num_seconds()
 }
 
