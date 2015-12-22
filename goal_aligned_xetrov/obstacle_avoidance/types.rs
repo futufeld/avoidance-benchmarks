@@ -33,20 +33,20 @@ impl Vehicle {
             SourceResult::Case1(x) => x,
             SourceResult::Case2(x) => x
         };
-        let mut repulsor = point.sub(source);
+        let mut repulsor = source.sub(point);
         let distance = repulsor.mag();
 
         // Determine nature of interaction.
         if distance < EPSILON { return None; }
-        if distance > self.potential_scale { return None; }
+        if distance >= self.potential_scale { return None };
         let ratio = distance / self.potential_scale;
 
         // Calculate components of potential.
         let gd = (1f64 - ratio) * (1f64 - ratio);
         let hd = ratio.sqrt();
-        let zd = (1f64 - hd) * (1f64 - hd) + hd * hd;
-        let rd = gd * ((1f64 - hd) / zd);
-        let td = gd * (hd / zd);
+        let zd = ((1f64 - hd) * (1f64 - hd) + hd * hd).sqrt();
+        let rd = gd * (1f64 - hd) / zd;
+        let td = gd * hd / zd;
 
         // Determine basis and calculate potential.
         repulsor = repulsor.mul(1f64 / distance);
@@ -112,8 +112,8 @@ pub enum SourceResult {
 impl Disc {
     // Creates a disc from a position and radius.
     pub fn new(pos: Vec2D, radius: f64) -> Disc {
-        let to_world = Mat2D::identity().shift(pos);
-        let to_local = Mat2D::identity().shift(pos.neg());
+        let to_world = Mat2D::translation(pos);
+        let to_local = Mat2D::translation(pos.neg());
         Disc { to_world: to_world, to_local: to_local, radius: radius }
     }
 
@@ -122,7 +122,7 @@ impl Disc {
         let local = self.to_local.transform(v);
         let mag = local.mag();
         if mag <= self.radius {
-            SourceResult::Case1(self.to_world.transform(v))
+            SourceResult::Case1(v)
         } else {
             let source = local.mul(self.radius / mag);
             SourceResult::Case2(self.to_world.transform(source))
