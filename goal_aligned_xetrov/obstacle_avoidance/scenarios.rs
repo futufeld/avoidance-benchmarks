@@ -40,33 +40,35 @@ fn random_vehicle() -> Vehicle {
     Vehicle::new(position, velocity, POTENTIAL_SCALE)
 }
 
-// Helper function for creating an arrangement of a disc and point.
+// Helper function for creating an arrangement of a disc and vehicle.
 fn scenario(num_discs: u32, dist_offset: f64) -> Scenario {
     let vehicle = random_vehicle();
-    let point = vehicle.look_ahead();
+    let position = vehicle.look_ahead();
     let orientation = vehicle.velocity.angle();
-    let to_world = Mat2D::rotation(orientation).shift(point);
+    let to_world = Mat2D::rotation(orientation).shift(position);
 
     let mut discs = vec!();
     for _ in 0..num_discs {
-        let offset = 0.1f64 + 0.9f64 * random_unity();
-        let radius = vehicle.potential_scale * offset;
+        let ratio = 0.1f64 + 0.9f64 * random_unity();
+        let radius = vehicle.potential_scale * ratio;
+
         let angle = 2f64 * PI * random_unity();
-        let local_centre = Vec2D::polar(angle, dist_offset * radius);
+        let offset = radius + vehicle.potential_scale * dist_offset;
+        let local_centre = Vec2D::polar(angle, offset);
         let centre = to_world.transform(local_centre);
         discs.push(Disc::new(centre, radius));
     }
     Scenario { vehicle: vehicle, discs: discs }
 }
 
-// Returns a randomly-generated scenario involving a sample point that lies
-// within the radius of a disc.
+// Returns a randomly-generated scenario involving a vehicle positioned
+// outside the locus of influence of a disc.
 pub fn case1_scenario(num_discs: u32) -> Scenario {
-    scenario(num_discs, random_unity())
+    scenario(num_discs, 1f64 + random_unity())
 }
 
-// Returns a randomly-generated scenario involving a sample point that lies
-// outside the radius of a disc.
+// Returns a randomly-generated scenario involving a vehicle positioned
+// inside the locus of influence of a disc.
 pub fn case2_scenario(num_discs: u32) -> Scenario {
-    scenario(num_discs, 1.1f64 + 0.9f64 * random_unity())
+    scenario(num_discs, random_unity())
 }
