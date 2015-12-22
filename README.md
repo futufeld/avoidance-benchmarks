@@ -15,7 +15,7 @@ This project includes multiple programs that benchmark various collision avoidan
 A breakdown of this project:
 
 - `goal_aligned_xetrov`: Contains subprojects that benchmark collision avoidance using the goal-aligned xetrov algorithm.
-    - `disc_source`*: Avoidance of disc obstacles.
+    - `obstacle_avoidance`*: Avoidance of disc obstacles.
 - `steering_behaviours`: Contains subprojects that benchmark collision avoidance _steering behaviours_.
     - `obstacle_avoidance`*: Avoidance of disc obstacles.
     - `wall_avoidance`*: Avoidance of wall segments.
