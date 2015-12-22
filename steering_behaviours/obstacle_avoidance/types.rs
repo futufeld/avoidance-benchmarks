@@ -1,5 +1,5 @@
 use super::linalg::vector2d::*;
-use super::linalg::matrix2d::*;
+use super::common::vehicle::Vehicle;
 
 use std::cmp::Ordering::Equal;
 
@@ -42,42 +42,26 @@ impl Interaction {
 }
 
 // Defines a feeler and the space in which it exists.
-pub struct Feeler {
-    pub position: Vec2D,
-    pub orientation: f64,
+pub struct FeelerVehicle {
+    pub vehicle: Vehicle,
     pub length: f64,
     pub width: f64,
-    pub to_world: Mat2D,
-    pub to_local: Mat2D
 }
 
-impl Feeler {
-    // Creates a feeler with the given length and width at the given position
-    // and orientation.
-    pub fn new(pos: Vec2D, ori: f64, length: f64, width: f64) -> Feeler {
-        let to_local = Mat2D::translation(pos.neg()).turn(-ori);
-        let to_world = Mat2D::rotation(ori).shift(pos);
-        Feeler { position: pos
-               , orientation: ori
-               , length: length
-               , width: width
-               , to_local: to_local
-               , to_world: to_world }
+impl FeelerVehicle {
+    //
+    pub fn new(vehicle: Vehicle, length: f64, width: f64) -> FeelerVehicle {
+        FeelerVehicle { vehicle: vehicle, length: length, width: width }
     }
 
-    // Updates the matrices that transform in and out of the feeler's space.
-    pub fn update_matrices(&mut self) {
-        let to_local = Mat2D::identity().shift(self.position.neg())
-                                        .turn(-self.orientation);
-        let to_world = Mat2D::identity().turn(self.orientation)
-                                        .shift(self.position);
-        self.to_local = to_local;
-        self.to_world = to_world;
+    // Updates the matrices of the underlying vehicle.
+    pub fn update(&mut self) {
+        self.vehicle.update_matrices();
     }
 
     // Returns the interaction between this feeler and the given circle.
     pub fn intersection(&self, circle: &Circle) -> Option<Interaction> {
-        let local_centre = self.to_local.transform(circle.centre);
+        let local_centre = self.vehicle.to_local.transform(circle.centre);
         if local_centre.y.abs() > circle.radius + self.width {
             return None;
         }
@@ -93,9 +77,9 @@ impl Feeler {
         Some(Interaction::new(local_point, local_centre, circle.radius))
     }
 
-    // Determines the steering required to avoid the nearest of a collection
-    // of circular obstacles.
-    pub fn steering(&self, circles: &Vec<Circle>) -> Option<Vec2D> {
+    // Returns a force intended to prevent collision between the vehicle and a
+    // collection of circles.
+    pub fn obstacle_avoidance(&self, circles: &Vec<Circle>) -> Option<Vec2D> {
         // Collect interactions between feeler and circles.
         let mut interactions = vec!();
         for circle in circles.iter() {
@@ -118,6 +102,6 @@ impl Feeler {
         let multiplier = 1f64 + (self.length - near.centre.x) / self.length;
         let force_x = (near.radius - near.centre.x) * BRAKING_WEIGHT;
         let force_y = (near.radius - near.centre.y) * multiplier;
-        Some(self.to_world.transform(Vec2D::new(force_x, force_y)))
+        Some(self.vehicle.to_world.transform(Vec2D::new(force_x, force_y)))
     }
 }

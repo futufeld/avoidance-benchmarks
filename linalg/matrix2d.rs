@@ -2,6 +2,7 @@ use std::f64;
 
 use super::vector2d::Vec2D;
 
+#[derive(Clone)]
 pub struct Mat2D {
     m: [[f64; 3]; 3]
 }

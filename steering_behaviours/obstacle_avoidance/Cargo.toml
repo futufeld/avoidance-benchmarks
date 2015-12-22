@@ -19,5 +19,8 @@ path = "../../utilities"
 [dependencies.linalg]
 path = "../../linalg"
 
+[dependencies.common]
+path = "../common"
+
 [dependencies]
 rand = "0.3"

@@ -1,4 +1,5 @@
 extern crate linalg;
+extern crate common;
 extern crate utilities;
 
 extern crate rand;
