@@ -1,11 +1,15 @@
-# Obstacle Avoidance Benchmarking
+# Obstacle Avoidance Benchmarks
 
 ## Overview
 
-This program benchmarks the the obstacle avoidance [steering behaviours](http://www.red3d.com/cwr/steer/). It does so by randomly-generating interactions between the feeler, which triggers collision avoidance, and a circular obstacle. The feeler is modelled as a rectangle. Three cases are considered:
+This program benchmarks the obstacle avoidance [steering behaviour](http://www.red3d.com/cwr/steer/). It does so by randomly generating interactions between a rectangular feeler, which triggers collision avoidance, and a number of circular obstacles. Two interactions are considered:
 
-- Case One: Obstacle and feeler do not intersect.
-- Case Two: Obstacle intersects the feeler but its centre does not lie inside the feeler. The boundary of the obstacle intersects either of the longitudinal edges of the feeler at exactly two points.
-- Case Three: Obstacle intersects the feeler and its centre lies inside the feeler. It may not intersect either longitudinal edge of the feeler.
+- Case One: No obstacles intersect the feeler.
+- Case Two: All obstacles intersect the feeler.
 
-Each case corresponds to a different branch of execution in the feeler-obstacle intersection function.
+The benchmark consists of:
+
+- Updating the matrices for transforming in and out of feeler's local space.
+- Determining whether each obstacle intersects with the feeler.
+- Identifying the nearest intersecting obstacle.
+- Calculating the steering force required to avoid that obstacle.
