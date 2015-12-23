@@ -1,5 +1,5 @@
-extern crate disc_source;
-use disc_source::scenarios::*;
+extern crate obstacle_avoidance;
+use obstacle_avoidance::scenarios::*;
 
 extern crate utilities;
 use utilities::handler::*;

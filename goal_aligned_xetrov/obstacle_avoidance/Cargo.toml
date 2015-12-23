@@ -1,5 +1,5 @@
 [package]
-name = "disc_source"
+name = "obstacle_avoidance"
 version = "0.1.0"
 authors = ["Shannon Pace <futufeld@gmail.com>"]
 
@@ -10,7 +10,7 @@ test = false
 docs = false
 
 [lib]
-name = "disc_source"
+name = "obstacle_avoidance"
 path = "lib.rs"
 
 [dependencies.linalg]
@@ -18,6 +18,9 @@ path = "../../linalg"
 
 [dependencies.utilities]
 path = "../../utilities"
+
+[dependencies.common]
+path = "../common"
 
 [dependencies]
 rand = "0.3"
