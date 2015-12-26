@@ -1,5 +1,3 @@
-use super::handler::LabelledBatch;
-
 use std::env;
 use std::error::Error;
 use std::fs::File;
@@ -7,7 +5,19 @@ use std::io::prelude::*;
 use std::path::Path;
 
 use super::getopts::Options;
+use super::handler::LabelledBatch;
 use super::serde_json::to_string_pretty;
+use super::test::black_box;
+use super::time::PreciseTime;
+
+// Times the execution of the given function in seconds.
+pub fn time_execution_seconds<F>(to_execute :F) -> i64
+    where F: Fn() -> ()
+{
+    let start = PreciseTime::now();
+    black_box(to_execute());
+    start.to(PreciseTime::now()).num_seconds()
+}
 
 // Applies basic command-line option functionality.
 pub fn get_filepath() -> Option<String> {

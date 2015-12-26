@@ -1,4 +1,3 @@
-use super::test::black_box;
 use super::time::PreciseTime;
 
 // Contains details and results of a batch of benchmarks.
@@ -25,15 +24,6 @@ impl LabelledBatch {
 // For structs that execute scenarios.
 pub trait HasScenario {
     fn run(&mut self);
-}
-
-// Times the execution of the given function in seconds.
-pub fn time_execution_seconds<F>(to_execute :F) -> i64
-    where F: Fn() -> ()
-{
-    let start = PreciseTime::now();
-    black_box(to_execute());
-    start.to(PreciseTime::now()).num_seconds()
 }
 
 // Runs a series of tests on scenarios generated using the provided function.

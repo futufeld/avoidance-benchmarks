@@ -1,8 +1,12 @@
 use super::linalg::vector2d::*;
+use super::utilities::handler::*;
 
 use std::cmp::Ordering::Equal;
 
-// Look ahead time.
+// Distance to which potential spreads from obstacles.
+pub const POTENTIAL_SCALE: f64 = 10f64;
+
+// Look ahead time for vehicles.
 const LOOK_AHEAD: f64 = 0.5f64;
 
 // Implementers of HasSource can return the nearest point on their geometry.
@@ -19,6 +23,7 @@ pub struct Vehicle {
 
 impl HasSource for Vehicle {
     // Return the future position of this vehicle.
+    #[allow(unused_variables)]
     fn source(&self, v: Vec2D) -> Vec2D {
         self.look_ahead()
     }
@@ -84,8 +89,8 @@ impl Vehicle {
         // Sort potentials by magnitude.
         if potentials.len() == 0 { return None };
         let mut potentials_with_mag: Vec<(Vec2D, f64)> =
-            potentials.iter().map(|&x| (x, x.mag())).collect::<Vec<_>>();
-        potentials_with_mag.sort_by(|a ,b| {
+            potentials.iter().map(|&x| (x, x.mag())).collect();
+        potentials_with_mag.sort_by(|a, b| {
             (a.1).partial_cmp(&(b.1)).unwrap_or(Equal)
         });
 
@@ -105,5 +110,25 @@ impl Vehicle {
             remaining -= potential.1;
         }
         Some(result.mul(self.potential_scale))
+    }
+}
+
+// Arrangement of vehicle and discs to be used in benchmarks.
+pub struct Scenario {
+    pub vehicle: Vehicle,
+    pub obstacles: Vec<Box<HasSource>>
+}
+
+impl HasScenario for Scenario {
+    // Runs the scenario.
+    fn run(&mut self) {
+        let _ = self.vehicle.total_potential(&self.obstacles);
+    }
+}
+
+impl Scenario {
+    // Creates a scenario from the given vehicle and obstacles.
+    pub fn new(vehicle: Vehicle, obstacles: Vec<Box<HasSource>>) -> Scenario {
+        Scenario { vehicle: vehicle, obstacles: obstacles }
     }
 }

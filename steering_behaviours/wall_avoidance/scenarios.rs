@@ -10,14 +10,14 @@ use super::rand::distributions::{IndependentSample, Range};
 
 use std::f64::consts::PI;
 
-//
+// Arrangement of vehicle and line segment obstacles.
 pub struct Scenario {
     pub vehicle: FeelerVehicle,
     pub walls: Vec<Segment>
 }
 
 impl HasScenario for Scenario {
-    //
+    // Runs the scenario.
     fn run(&mut self) {
         self.vehicle.update();
         let _ = self.vehicle.wall_avoidance(&self.walls);
@@ -25,13 +25,13 @@ impl HasScenario for Scenario {
 }
 
 impl Scenario {
-    //
+    // Creates a scenario involving a vehicle with feelers and wall segments.
     pub fn new(vehicle: FeelerVehicle, walls: Vec<Segment>) -> Scenario {
         Scenario { vehicle: vehicle, walls: walls }
     }
 }
 
-//
+// Defines feeler arrangements.
 #[derive(Copy, Clone)]
 pub enum FeelerShape { Spear, Fork, Trident }
 
@@ -41,29 +41,29 @@ fn random_unity() -> f64 {
     Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
 }
 
-//
+// Returns a vehicle with semi-random position.
 fn random_vehicle() -> Vehicle {
     let angle = 2f64 * PI * random_unity();
     let position = Vec2D::polar(angle, 100f64 * random_unity());
     Vehicle::new(position, 2f64 * PI * random_unity())
 }
 
-//
+// Returns a feeler that extends ahead of a vehicle.
 fn feeler_centre() -> Segment {
     Segment::new(Vec2D::new(2f64, 0f64), Vec2D::new(12f64, 0f64)).unwrap()
 }
 
-//
+// Returns a feeler that extends to the left of the vehicle.
 fn feeler_left() -> Segment {
     Segment::new(Vec2D::new(0f64, 2f64), Vec2D::new(5f64, 7f64)).unwrap()
 }
 
-//
+// Returns a feeler that extends to the right of the vehicle.
 fn feeler_right() -> Segment {
     Segment::new(Vec2D::new(0f64, -2f64), Vec2D::new(5f64, -7f64)).unwrap()
 }
 
-//
+// Returns the feelers corresponding to an arrangement.
 fn feelers(arrangement: FeelerShape) -> Vec<Segment> {
     let mut feelers = vec!();
     match arrangement {
@@ -81,7 +81,7 @@ fn feelers(arrangement: FeelerShape) -> Vec<Segment> {
     feelers
 }
 
-//
+// Returns a wall segment that is near the given feeler.
 fn wall_near_feeler(feeler: &Segment, offset: f64) -> Segment {
     // Determine feeler transform.
     let position = feeler.point1;
@@ -99,30 +99,29 @@ fn wall_near_feeler(feeler: &Segment, offset: f64) -> Segment {
     Segment::new(point1, point2).unwrap()
 }
 
-//
+// Constructs a scenario for a given arragement of feelers.
 fn scenario(shape: FeelerShape, offset: f64) -> Scenario {
-    // Create feelers and walls.
-    let mut local_walls = vec!();
-    let feelers = feelers(shape);
-    for feeler in feelers.iter() {
-        local_walls.push(wall_near_feeler(feeler, offset))
+    // Work-around for lexical-based borrowing.
+    fn walls(feelers: &Vec<Segment>, offset: f64) -> Vec<Segment> {
+        let f = |feeler| wall_near_feeler(feeler, offset);
+        feelers.iter().map(f).collect()
     }
 
-    // Transform walls into world space from vehicle's local space.
+    // Create vehicle and walls.
+    let feelers = feelers(shape);
     let vehicle = random_vehicle();
     let to_world = vehicle.to_world.clone();
     let f = |x: &Segment| x.transform(&to_world);
-    let walls = local_walls.iter().map(f).collect();
-    let feeler_vehicle = FeelerVehicle::new(vehicle, feelers);
-    Scenario::new(feeler_vehicle, walls)
+    let walls = walls(&feelers, offset).iter().map(f).collect();
+    Scenario::new(FeelerVehicle::new(vehicle, feelers), walls)
 }
 
-//
+// Constructs scenarios in which feelers and walls do not intersect.
 pub fn case1_scenario(shape: FeelerShape) -> Scenario {
     scenario(shape, 1f64 + random_unity())
 }
 
-//
+// Constructs scenarios in which one wall intersects with each feeler.
 pub fn case2_scenario(shape: FeelerShape) -> Scenario {
     scenario(shape, random_unity())
 }

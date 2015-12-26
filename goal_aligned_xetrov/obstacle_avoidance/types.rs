@@ -1,7 +1,7 @@
 use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
 
-use super::common::vehicle::HasSource;
+use super::common::types::HasSource;
 
 // Defines transforms in and out of a space containing a disc.
 pub struct Disc {

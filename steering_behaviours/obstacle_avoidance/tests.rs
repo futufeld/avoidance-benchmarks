@@ -4,7 +4,7 @@ use super::scenarios::*;
 use super::types::*;
 
 // Number of each test to execute.
-pub const NUM_RUNS: u32 = 1_000_000;
+pub const NUM_RUNS: u32 = 1_000;
 
 // Convenience function for verifying that feeler correctly identifies the
 // case of a number of scenarios.

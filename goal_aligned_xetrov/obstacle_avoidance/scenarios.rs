@@ -2,36 +2,12 @@ use types::*;
 
 use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
-use super::utilities::handler::*;
-use super::common::vehicle::*;
+use super::common::types::*;
 
 use super::rand::thread_rng;
 use super::rand::distributions::{IndependentSample, Range};
 
 use std::f64::consts::PI;
-
-// Distance to which potential spreads from obstacles.
-const POTENTIAL_SCALE: f64 = 10f64;
-
-// Arrangement of vehicle and discs to be used in benchmarks.
-pub struct Scenario {
-    pub vehicle: Vehicle,
-    pub discs: Vec<Box<HasSource>>
-}
-
-impl HasScenario for Scenario {
-    // Runs the scenario.
-    fn run(&mut self) {
-        let _ = self.vehicle.total_potential(&self.discs);
-    }
-}
-
-impl Scenario {
-    // Creates a scenario from the given vehicle and discs.
-    pub fn new(vehicle: Vehicle, discs: Vec<Box<HasSource>>) -> Scenario {
-        Scenario { vehicle: vehicle, discs: discs }
-    }
-}
 
 // Returns a random f64 between 0 and 1 using the thread's random number
 // generator.
@@ -48,6 +24,19 @@ fn random_vehicle() -> Vehicle {
     Vehicle::new(position, velocity, POTENTIAL_SCALE)
 }
 
+// Returns a disc positioned semi-randomly with respect to `potential_scale`
+// and `dist_offset` transformed by `to_world`.
+fn near_disc(dist_offset: f64, potential_scale: f64, to_world: &Mat2D)
+    -> Box<HasSource>
+{
+    let ratio = 0.1f64 + 0.9f64 * random_unity();
+    let radius = potential_scale * ratio;
+    let angle = 2f64 * PI * random_unity();
+    let offset = radius + potential_scale * dist_offset;
+    let local_centre = Vec2D::polar(angle, offset);
+    Box::new(Disc::new(to_world.transform(local_centre), radius))
+}
+
 // Helper function for creating random arrangements of discs and a vehicle.
 fn scenario(num_discs: u32, dist_offset: f64) -> Scenario {
     let vehicle = random_vehicle();
@@ -55,17 +44,8 @@ fn scenario(num_discs: u32, dist_offset: f64) -> Scenario {
     let orientation = vehicle.velocity.angle();
     let to_world = Mat2D::rotation(orientation).shift(position);
 
-    let mut discs: Vec<Box<HasSource>> = vec!();
-    for _ in 0..num_discs {
-        let ratio = 0.1f64 + 0.9f64 * random_unity();
-        let radius = vehicle.potential_scale * ratio;
-
-        let angle = 2f64 * PI * random_unity();
-        let offset = radius + vehicle.potential_scale * dist_offset;
-        let local_centre = Vec2D::polar(angle, offset);
-        let centre = to_world.transform(local_centre);
-        discs.push(Box::new(Disc::new(centre, radius)));
-    }
+    let f = |_| near_disc(dist_offset, POTENTIAL_SCALE, &to_world);
+    let discs = (0..num_discs).map(f).collect();
     Scenario::new(vehicle, discs)
 }
 

@@ -2,36 +2,12 @@ use types::*;
 
 use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
-use super::utilities::handler::*;
-use super::common::vehicle::*;
+use super::common::types::*;
 
 use super::rand::thread_rng;
 use super::rand::distributions::{IndependentSample, Range};
 
 use std::f64::consts::PI;
-
-// Distance to which potential spreads from obstacles.
-const POTENTIAL_SCALE: f64 = 10f64;
-
-// Arrangement of sample point and disc to be used in benchmarks.
-pub struct Scenario {
-    pub vehicle: Vehicle,
-    pub walls: Vec<Box<HasSource>>
-}
-
-impl HasScenario for Scenario {
-    // Runs the scenario.
-    fn run(&mut self) {
-        let _ = self.vehicle.total_potential(&self.walls);
-    }
-}
-
-impl Scenario {
-    // Creates a scenario from the given vehicle and walls.
-    pub fn new(vehicle: Vehicle, walls: Vec<Box<HasSource>>) -> Scenario {
-        Scenario { vehicle: vehicle, walls: walls }
-    }
-}
 
 // Returns a random f64 between 0 and 1 using the thread's random number
 // generator.
@@ -48,6 +24,22 @@ fn random_vehicle() -> Vehicle {
     Vehicle::new(position, velocity, POTENTIAL_SCALE)
 }
 
+// Returns a line segment positioned semi-randomly with respect to
+// `potential_scale` and `dist_offset` transformed by `to_world`.
+fn near_wall(dist_offset: f64, potential_scale: f64, to_world: &Mat2D)
+    -> Box<HasSource>
+{
+    let angle = 2f64 * PI * random_unity();
+    let offset = dist_offset * potential_scale;
+    let point = Vec2D::polar(angle, offset);
+    let local_point1 = Vec2D::polar(angle + 0.5f64 * PI, 0.5f64);
+    let local_point2 = Vec2D::polar(angle - 0.5f64 * PI, 0.5f64);
+
+    let point1 = to_world.transform(point.add(local_point1));
+    let point2 = to_world.transform(point.add(local_point2));
+    Box::new(Segment::new(point1, point2))
+}
+
 // Helper function for creating an arrangement of a wall and vehicle.
 fn scenario(num_walls: u32, dist_offset: f64) -> Scenario {
     let vehicle = random_vehicle();
@@ -55,18 +47,8 @@ fn scenario(num_walls: u32, dist_offset: f64) -> Scenario {
     let orientation = vehicle.velocity.angle();
     let to_world = Mat2D::rotation(orientation).shift(position);
 
-    let mut walls: Vec<Box<HasSource>> = vec!();
-    for _ in 0..num_walls {
-        let angle = 2f64 * PI * random_unity();
-        let offset = dist_offset * vehicle.potential_scale;
-        let point = Vec2D::polar(angle, offset);
-        let local_point1 = Vec2D::polar(angle + 0.5f64 * PI, 0.5f64);
-        let local_point2 = Vec2D::polar(angle - 0.5f64 * PI, 0.5f64);
-
-        let point1 = to_world.transform(point.add(local_point1));
-        let point2 = to_world.transform(point.add(local_point2));
-        walls.push(Box::new(Segment::new(point1, point2)));
-    }
+    let f = |_| near_wall(dist_offset, POTENTIAL_SCALE, &to_world);
+    let walls = (0..num_walls).map(f).collect();
     Scenario::new(vehicle, walls)
 }
 

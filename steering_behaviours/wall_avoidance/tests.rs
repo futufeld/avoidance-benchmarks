@@ -4,9 +4,10 @@ use super::scenarios::*;
 use super::types::*;
 
 // Number of each test to execute.
-pub const NUM_RUNS: u32 = 1_000_000;
+pub const NUM_RUNS: u32 = 1_000;
 
-//
+// Convenience function for verifying that the expected number of feeler-wall
+// intersections occurs.
 pub fn test_scenarios<F, G>( num_scenarios: u32
                            , scenario_creator: F
                            , result_expected: G) -> bool
@@ -16,13 +17,13 @@ pub fn test_scenarios<F, G>( num_scenarios: u32
     for _ in 0..num_scenarios {
         let scenario = scenario_creator();
         let result = scenario.vehicle.wall_interactions(&scenario.walls);
-        println!("Count: {}", result.len());
         success = success && result_expected(result);
     }
     success
 }
 
-//
+// Test all feeler arrangements in scenarios in which no obstacles intersect
+// feelers.
 #[test]
 fn test_case1() {
     let creator = || case1_scenario(FeelerShape::Spear);
@@ -38,7 +39,8 @@ fn test_case1() {
     assert!(test_scenarios(NUM_RUNS, creator, checker));
 }
 
-//
+// Test all feeler arrangements in scenarios in which exactly one obstacle
+// intersects each feeler.
 #[test]
 fn test_case2() {
     let creator = || case2_scenario(FeelerShape::Spear);
