@@ -4,14 +4,7 @@ use wall_avoidance::scenarios::*;
 extern crate utilities;
 use utilities::handler::*;
 use utilities::utilities::*;
-
-use std::path::Path;
-
-// Number of scenarios to run for each benchmark.
-const NUM_RUNS: u32 = 1_000;
-
-// Number of batches of runs for each benchmark.
-const NUM_BATCHES: u32 = 100;
+use utilities::constants::*;
 
 // Used to indicate scenario type.
 enum ScenarioType { Case1, Case2 }
@@ -53,14 +46,7 @@ fn main() {
         results.push(time_case(ScenarioType::Case2, FeelerShape::Spear));
         results.push(time_case(ScenarioType::Case2, FeelerShape::Fork));
         results.push(time_case(ScenarioType::Case2, FeelerShape::Trident));
-
-        match get_filepath() {
-            Some(filestring) => {
-                let filepath = Path::new(&filestring);
-                write_batches(&filepath, results);
-            },
-            None => ()
-        }
+        write_results(&results);
     };
     println!("Total time: {} seconds", time_execution_seconds(run));
 }

@@ -32,7 +32,7 @@ pub fn get_filepath() -> Option<String> {
 }
 
 // Writes test information to the specified file.
-pub fn write_batches(filepath: &Path, batches: Vec<LabelledBatch>) {
+pub fn write_batches(filepath: &Path, batches: &Vec<LabelledBatch>) {
     let json = to_string_pretty(&batches).unwrap();
 
     let mut file = match File::create(&filepath) {
@@ -47,5 +47,16 @@ pub fn write_batches(filepath: &Path, batches: Vec<LabelledBatch>) {
                             , filepath.display()
                             , Error::description(&error) ),
         Ok(_) => ()
+    }
+}
+
+// Convenience function for writing LabelledBatch data to user-specified file.
+pub fn write_results(results: &Vec<LabelledBatch>) {
+    match get_filepath() {
+        Some(filestring) => {
+            let filepath = Path::new(&filestring);
+            write_batches(&filepath, results);
+        },
+        None => ()
     }
 }
