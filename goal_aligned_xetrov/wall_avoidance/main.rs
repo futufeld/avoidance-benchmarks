@@ -13,8 +13,8 @@ enum ScenarioType { Case1, Case2 }
 // obstacles.
 fn label(case: ScenarioType, num_obstacles: u32) -> String {
     match case {
-        ScenarioType::Case1 => format!("case1-{}", num_obstacles),
-        ScenarioType::Case2 => format!("case2-{}", num_obstacles)
+        ScenarioType::Case1 => format!("{}-0", num_obstacles),
+        ScenarioType::Case2 => format!("0-{}", num_obstacles)
     }
 }
 

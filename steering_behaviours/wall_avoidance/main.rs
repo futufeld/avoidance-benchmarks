@@ -13,12 +13,12 @@ enum ScenarioType { Case1, Case2 }
 fn label(case: ScenarioType, shape: FeelerShape) -> String {
     match case {
         ScenarioType::Case1 => match shape {
-            FeelerShape::Spear => format!("1-0"),
+            FeelerShape::Spear => format!("0-1"),
             FeelerShape::Fork => format!("2-2"),
             FeelerShape::Trident => format!("3-6")
         },
         ScenarioType::Case2 => match shape {
-            FeelerShape::Spear => format!("0-1"),
+            FeelerShape::Spear => format!("1-0"),
             FeelerShape::Fork => format!("4-0"),
             FeelerShape::Trident => format!("9-0")
         }
