@@ -1,0 +1,27 @@
+[package]
+name = "wall_avoidance"
+version = "0.1.0"
+authors = ["Shannon Pace <futufeld@gmail.com>"]
+
+[[bin]]
+name = "main"
+path = "main.rs"
+test = false
+docs = false
+
+[lib]
+name = "wall_avoidance"
+path = "lib.rs"
+
+[dependencies.linalg]
+path = "../../linalg"
+
+[dependencies.utilities]
+path = "../../utilities"
+
+[dependencies.common]
+path = "../common"
+
+[dependencies]
+rand = "0.3"
+time = "*"
