@@ -17,6 +17,13 @@ pub struct Vehicle {
     pub potential_scale: f64
 }
 
+impl HasSource for Vehicle {
+    // Return the future position of this vehicle.
+    fn source(&self, v: Vec2D) -> Vec2D {
+        self.look_ahead()
+    }
+}
+
 impl Vehicle {
     // Creates a vehicle from the given values.
     pub fn new(pos: Vec2D, vel: Vec2D, potential_scale: f64) -> Vehicle {
