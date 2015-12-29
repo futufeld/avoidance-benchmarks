@@ -17,10 +17,11 @@ enum ScenarioType { Case1, Case2 }
 
 // Returns the string defined by the given scenario type.
 fn label(case: ScenarioType, num_obstacles: u32) -> String {
-    match case {
-        ScenarioType::Case1 => format!("{}-0", num_obstacles),
-        ScenarioType::Case2 => format!("0-{}", num_obstacles)
-    }
+    let (insignificant, significant) = match case {
+        ScenarioType::Case1 => (num_obstacles, 0u32),
+        ScenarioType::Case2 => (0u32, num_obstacles)
+    };
+    format!("Insignificant {}-{} Significant", insignificant, significant)
 }
 
 // Invokes test handler using the specified scenario type.

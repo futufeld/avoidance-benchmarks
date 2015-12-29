@@ -11,18 +11,19 @@ enum ScenarioType { Case1, Case2 }
 
 // Returns the string defined by the given scenario type.
 fn label(case: ScenarioType, shape: FeelerShape) -> String {
-    match case {
+    let (insignificant, significant) = match case {
         ScenarioType::Case1 => match shape {
-            FeelerShape::Spear => format!("0-1"),
-            FeelerShape::Fork => format!("2-2"),
-            FeelerShape::Trident => format!("3-6")
+            FeelerShape::Spear => (1u32, 0u32),
+            FeelerShape::Fork => (4u32, 0u32),
+            FeelerShape::Trident => (9u32, 0u32)
         },
         ScenarioType::Case2 => match shape {
-            FeelerShape::Spear => format!("1-0"),
-            FeelerShape::Fork => format!("4-0"),
-            FeelerShape::Trident => format!("9-0")
+            FeelerShape::Spear => (0u32, 1u32),
+            FeelerShape::Fork => (2u32, 2u32),
+            FeelerShape::Trident => (6u32, 3u32)
         }
-    }
+    };
+    format!("Insignificant {}-{} Significant", insignificant, significant)
 }
 
 // Invokes test handler using the specified scenario type.
