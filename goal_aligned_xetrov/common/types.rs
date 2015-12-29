@@ -7,7 +7,7 @@ use std::cmp::Ordering::Equal;
 pub const POTENTIAL_SCALE: f64 = 10f64;
 
 // Look ahead time for vehicles.
-const LOOK_AHEAD: f64 = 0.5f64;
+pub const LOOK_AHEAD: f64 = 0.5f64;
 
 // Implementers of HasSource can return the nearest point on their geometry.
 pub trait HasSource {
