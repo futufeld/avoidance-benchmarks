@@ -1,23 +1,23 @@
 use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
 
-// Vehicle with position and orientation.
-pub struct Vehicle {
+// Local space with position and orientation.
+pub struct Frame {
     pub position: Vec2D,
     pub orientation: f64,
     pub to_world: Mat2D,
     pub to_local: Mat2D
 }
 
-impl Vehicle {
+impl Frame {
     // Creates a vehicle with the given position and orientation.
-    pub fn new(pos: Vec2D, ori: f64) -> Vehicle {
+    pub fn new(pos: Vec2D, ori: f64) -> Frame {
         let to_local = Mat2D::translation(pos.neg()).turn(-ori);
         let to_world = Mat2D::rotation(ori).shift(pos);
-        Vehicle { position: pos
-                , orientation: ori
-                , to_local: to_local
-                , to_world: to_world }
+        Frame { position: pos
+              , orientation: ori
+              , to_local: to_local
+              , to_world: to_world }
     }
 
     // Updates the vehicle's matrices.

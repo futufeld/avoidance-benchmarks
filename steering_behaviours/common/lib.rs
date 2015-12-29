@@ -1,3 +1,3 @@
 extern crate linalg;
 
-pub mod vehicle;
+pub mod types;

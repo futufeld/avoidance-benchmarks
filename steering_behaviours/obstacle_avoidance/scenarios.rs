@@ -3,31 +3,31 @@ use types::*;
 use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
 use super::utilities::handler::*;
-use super::common::vehicle::Vehicle;
+use super::common::types::Frame;
 
 use super::rand::thread_rng;
 use super::rand::distributions::{IndependentSample, Range};
 
 use std::f64::consts::PI;
 
-// Arrangement of feeler volume and circles to be used in benchmarks.
+// Arrangement of vehicle and circles to be used in benchmarks.
 pub struct Scenario {
-    pub feeler: FeelerVehicle,
+    pub vehicle: Vehicle,
     pub circles: Vec<Circle>
 }
 
 impl HasScenario for Scenario {
     // Runs the scenario.
     fn run(&mut self) {
-        self.feeler.vehicle.update_matrices();
-        let _ = self.feeler.obstacle_avoidance(&self.circles);
+        self.vehicle.frame.update_matrices();
+        let _ = self.vehicle.obstacle_avoidance(&self.circles);
     }
 }
 
 impl Scenario {
     // Convenience function for creating scenarios.
-    fn new(feeler: FeelerVehicle, circles: Vec<Circle>) -> Scenario {
-        Scenario { feeler: feeler, circles: circles }
+    fn new(vehicle: Vehicle, circles: Vec<Circle>) -> Scenario {
+        Scenario { vehicle: vehicle, circles: circles }
     }
 }
 
@@ -37,14 +37,14 @@ fn random_unity() -> f64 {
     Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
 }
 
-// Returns a feeler with a semi-random position and orientation with the
+// Returns a vehicle with a semi-random position and orientation with the
 // given length and width.
-fn random_vehicle(length: f64, width: f64) -> FeelerVehicle {
+fn random_vehicle(length: f64, width: f64) -> Vehicle {
     let angle = 2f64 * PI * random_unity();
     let position = Vec2D::polar(angle, 100f64 * random_unity());
     let orientation = 2f64 * PI * random_unity();
-    let vehicle = Vehicle::new(position, orientation);
-    FeelerVehicle::new(vehicle, length, width)
+    let vehicle = Frame::new(position, orientation);
+    Vehicle::new(vehicle, length, width)
 }
 
 // Returns a circle with a semi-random centre determined by `x_scale`,
@@ -65,14 +65,14 @@ fn near_circle(x_scale: f64, y_scale: f64, y_offset: f64, transform: &Mat2D)
 // Returns a semi-random scenario involving `n` obstacles positioned with
 // respect to `x_scale`, `y_scale` and `y_offset` (see `near_circle`).
 fn scenario(n: u32, x_scale: f64, y_scale: f64, y_offset: f64) -> Scenario {
-    let feeler = random_vehicle(x_scale, y_scale);
-    let to_world = feeler.vehicle.to_world.clone();
+    let vehicle = random_vehicle(x_scale, y_scale);
+    let to_world = vehicle.frame.to_world.clone();
     let f = |_| near_circle(x_scale, y_scale, y_offset, &to_world);
     let circles: Vec<Circle> = (0..n).map(f).collect();
-    Scenario::new(feeler, circles)
+    Scenario::new(vehicle, circles)
 }
 
-// Returns a randomly-generated arrangement of one feeler and a number of
+// Returns a randomly-generated arrangement of one vehicle and a number of
 // circles. Each circle is guaranteed to lie outside the volume.
 pub fn case1_scenario( num_circles: u32
                      , feeler_length: f64
@@ -80,8 +80,8 @@ pub fn case1_scenario( num_circles: u32
     scenario(num_circles, 1f64 + random_unity(), feeler_length, feeler_width)
 }
 
-// Returns a randomly-generated arrangement of one feeler and a number of
-// circles. Each circle is guaranteed to intersect the feeler volume.
+// Returns a randomly-generated arrangement of one vehicle and a number of
+// circles. Each circle is guaranteed to intersect the vehicle's feeler volume.
 pub fn case2_scenario( num_circles: u32
                      , feeler_length: f64
                      , feeler_width: f64 ) -> Scenario {

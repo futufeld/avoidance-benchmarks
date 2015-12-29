@@ -1,6 +1,6 @@
 use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
-use super::common::vehicle::Vehicle;
+use super::common::types::Frame;
 
 use std::cmp::Ordering::Equal;
 
@@ -110,20 +110,20 @@ impl Segment {
 }
 
 // Vehicle with feelers.
-pub struct FeelerVehicle {
-    pub vehicle: Vehicle,
+pub struct Vehicle {
+    pub frame: Frame,
     pub feelers: Vec<Segment>
 }
 
-impl FeelerVehicle {
-    // Creates a vehicle with the given feelers.
-    pub fn new(vehicle: Vehicle, feelers: Vec<Segment>) -> FeelerVehicle {
-        FeelerVehicle { vehicle: vehicle, feelers: feelers }
+impl Vehicle {
+    // Creates a vehicle with the given values.
+    pub fn new(frame: Frame, feelers: Vec<Segment>) -> Vehicle {
+        Vehicle { frame: frame, feelers: feelers }
     }
 
-    // Updates the matrices of the underlying vehicle.
+    // Updates the matrices of the underlying frame.
     pub fn update(&mut self) {
-        self.vehicle.update_matrices();
+        self.frame.update_matrices();
     }
 
     // Returns an interaction, if it exists, between a feeler and wall.
@@ -150,7 +150,7 @@ impl FeelerVehicle {
     pub fn wall_interactions(&self, walls: &Vec<Segment>) -> Vec<Interaction> {
         let mut interactions = vec!();
         for local_feeler in self.feelers.iter() {
-            let feeler = local_feeler.transform(&self.vehicle.to_world);
+            let feeler = local_feeler.transform(&self.frame.to_world);
             for wall in walls.iter() {
                 match self.wall_interaction(&feeler, &wall) {
                     Some(x) => interactions.push(x),

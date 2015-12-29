@@ -3,7 +3,7 @@ use types::*;
 use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
 use super::utilities::handler::*;
-use super::common::vehicle::Vehicle;
+use super::common::types::Frame;
 
 use super::rand::thread_rng;
 use super::rand::distributions::{IndependentSample, Range};
@@ -12,7 +12,7 @@ use std::f64::consts::PI;
 
 // Arrangement of vehicle and line segment obstacles.
 pub struct Scenario {
-    pub vehicle: FeelerVehicle,
+    pub vehicle: Vehicle,
     pub walls: Vec<Segment>
 }
 
@@ -26,7 +26,7 @@ impl HasScenario for Scenario {
 
 impl Scenario {
     // Creates a scenario involving a vehicle with feelers and wall segments.
-    pub fn new(vehicle: FeelerVehicle, walls: Vec<Segment>) -> Scenario {
+    pub fn new(vehicle: Vehicle, walls: Vec<Segment>) -> Scenario {
         Scenario { vehicle: vehicle, walls: walls }
     }
 }
@@ -41,11 +41,11 @@ fn random_unity() -> f64 {
     Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
 }
 
-// Returns a vehicle with semi-random position.
-fn random_vehicle() -> Vehicle {
+// Returns a frame with semi-random position and orientation.
+fn random_frame() -> Frame {
     let angle = 2f64 * PI * random_unity();
     let position = Vec2D::polar(angle, 100f64 * random_unity());
-    Vehicle::new(position, 2f64 * PI * random_unity())
+    Frame::new(position, 2f64 * PI * random_unity())
 }
 
 // Returns a feeler that extends ahead of a vehicle.
@@ -109,11 +109,11 @@ fn scenario(shape: FeelerShape, offset: f64) -> Scenario {
 
     // Create vehicle and walls.
     let feelers = feelers(shape);
-    let vehicle = random_vehicle();
-    let to_world = vehicle.to_world.clone();
+    let frame = random_frame();
+    let to_world = frame.to_world.clone();
     let f = |x: &Segment| x.transform(&to_world);
     let walls = walls(&feelers, offset).iter().map(f).collect();
-    Scenario::new(FeelerVehicle::new(vehicle, feelers), walls)
+    Scenario::new(Vehicle::new(frame, feelers), walls)
 }
 
 // Constructs scenarios in which feelers and walls do not intersect.

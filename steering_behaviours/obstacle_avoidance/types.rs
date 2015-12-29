@@ -1,5 +1,5 @@
 use super::linalg::vector2d::*;
-use super::common::vehicle::Vehicle;
+use super::common::types::Frame;
 
 use std::cmp::Ordering::Equal;
 
@@ -26,7 +26,7 @@ pub enum FeelerResult {
     Case3(Interaction)
 }
 
-// Pairs a circle with a point. Used to capture interactions between the
+// Pairs a circle with a point. Used to capture interactions between vehicle
 // feeler and circles.
 pub struct Interaction {
     point: Vec2D,
@@ -41,27 +41,28 @@ impl Interaction {
     }
 }
 
-// Defines a feeler and the space in which it exists.
-pub struct FeelerVehicle {
-    pub vehicle: Vehicle,
+// Defines a vehicle with a single feeler volume.
+pub struct Vehicle {
+    pub frame: Frame,
     pub length: f64,
     pub width: f64,
 }
 
-impl FeelerVehicle {
-    //
-    pub fn new(vehicle: Vehicle, length: f64, width: f64) -> FeelerVehicle {
-        FeelerVehicle { vehicle: vehicle, length: length, width: width }
+impl Vehicle {
+    // Creates a new vehicle using the given values.
+    pub fn new(frame: Frame, length: f64, width: f64) -> Vehicle {
+        Vehicle { frame: frame, length: length, width: width }
     }
 
-    // Updates the matrices of the underlying vehicle.
+    // Updates the matrices of the underlying frame.
     pub fn update(&mut self) {
-        self.vehicle.update_matrices();
+        self.frame.update_matrices();
     }
 
-    // Returns the interaction between this feeler and the given circle.
+    // Returns the interaction between the vehicle's feeler and the given
+    // circle.
     pub fn intersection(&self, circle: &Circle) -> Option<Interaction> {
-        let local_centre = self.vehicle.to_local.transform(circle.centre);
+        let local_centre = self.frame.to_local.transform(circle.centre);
         if local_centre.y.abs() > circle.radius + self.width {
             return None;
         }
@@ -80,7 +81,7 @@ impl FeelerVehicle {
     // Returns a force intended to prevent collision between the vehicle and a
     // collection of circles.
     pub fn obstacle_avoidance(&self, circles: &Vec<Circle>) -> Option<Vec2D> {
-        // Collect interactions between feeler and circles.
+        // Collect interactions between vehicle's feeler and circles.
         let mut interactions = vec!();
         for circle in circles.iter() {
             match self.intersection(circle) {
@@ -102,6 +103,6 @@ impl FeelerVehicle {
         let multiplier = 1f64 + (self.length - near.centre.x) / self.length;
         let force_x = (near.radius - near.centre.x) * BRAKING_WEIGHT;
         let force_y = (near.radius - near.centre.y) * multiplier;
-        Some(self.vehicle.to_world.transform(Vec2D::new(force_x, force_y)))
+        Some(self.frame.to_world.transform(Vec2D::new(force_x, force_y)))
     }
 }
