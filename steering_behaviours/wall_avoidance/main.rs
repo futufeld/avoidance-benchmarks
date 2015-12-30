@@ -6,47 +6,35 @@ use utilities::handler::*;
 use utilities::utilities::*;
 use utilities::constants::*;
 
-// Used to indicate scenario type.
-enum ScenarioType { Case1, Case2 }
-
-// Returns the string defined by the given scenario type.
-fn label(case: ScenarioType, shape: FeelerShape) -> String {
-    let (insignificant, significant) = match case {
-        ScenarioType::Case1 => match shape {
-            FeelerShape::Spear => (1u32, 0u32),
-            FeelerShape::Fork => (4u32, 0u32),
-            FeelerShape::Trident => (9u32, 0u32)
-        },
-        ScenarioType::Case2 => match shape {
-            FeelerShape::Spear => (0u32, 1u32),
-            FeelerShape::Fork => (2u32, 2u32),
-            FeelerShape::Trident => (6u32, 3u32)
-        }
-    };
-    format!("Insignificant {}-{} Significant", insignificant, significant)
-}
-
 // Invokes test handler using the specified scenario type.
-fn time_case(case: ScenarioType, shape: FeelerShape) -> LabelledBatch {
-    let scenario: fn(FeelerShape) -> Scenario = match case {
-        ScenarioType::Case1 => case1_scenario,
-        ScenarioType::Case2 => case2_scenario
-    };
+fn time_case<F>(label: String, scenario: F, shape: FeelerShape)
+     -> LabelledBatch where F: Fn(FeelerShape) -> Scenario
+{
     let creator = || -> Box<HasScenario> { Box::new(scenario(shape)) };
-    let batch = time_batch(creator, NUM_RUNS, NUM_BATCHES);
-    LabelledBatch::new(label(case, shape), batch)
+    LabelledBatch::new(label, time_batch(creator, NUM_RUNS, NUM_BATCHES))
 }
 
 // Starts benchmarks and writes results to file.
 fn main() {
     let run = || {
         let mut results = vec!();
-        results.push(time_case(ScenarioType::Case1, FeelerShape::Spear));
-        results.push(time_case(ScenarioType::Case1, FeelerShape::Fork));
-        results.push(time_case(ScenarioType::Case1, FeelerShape::Trident));
-        results.push(time_case(ScenarioType::Case2, FeelerShape::Spear));
-        results.push(time_case(ScenarioType::Case2, FeelerShape::Fork));
-        results.push(time_case(ScenarioType::Case2, FeelerShape::Trident));
+        let label11 = format!("Insignificant 1-0 Significant");
+        results.push(time_case(label11, case1_scenario, FeelerShape::Spear));
+
+        let label12 = format!("Insignificant 4-0 Significant");
+        results.push(time_case(label12, case1_scenario, FeelerShape::Fork));
+
+        let label13 = format!("Insignificant 9-0 Significant");
+        results.push(time_case(label13, case1_scenario, FeelerShape::Trident));
+
+        let label21 = format!("Insignificant 0-1 Significant");
+        results.push(time_case(label21, case1_scenario, FeelerShape::Spear));
+
+        let label22 = format!("Insignificant 2-2 Significant");
+        results.push(time_case(label22, case1_scenario, FeelerShape::Fork));
+
+        let label23 = format!("Insignificant 6-3 Significant");
+        results.push(time_case(label23, case1_scenario, FeelerShape::Trident));
         write_results(&results);
     };
     println!("Total time: {} seconds", time_execution_seconds(run));
