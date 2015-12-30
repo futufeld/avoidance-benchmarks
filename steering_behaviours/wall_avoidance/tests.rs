@@ -4,13 +4,13 @@ use super::scenarios::*;
 use super::types::*;
 
 // Number of each test to execute.
-pub const NUM_RUNS: u32 = 1_000;
+const NUM_RUNS: u32 = 1_000;
 
 // Convenience function for verifying that the expected number of feeler-wall
 // intersections occurs.
-pub fn test_scenarios<F, G>( num_scenarios: u32
-                           , scenario_creator: F
-                           , result_expected: G) -> bool
+fn test_scenarios<F, G>( num_scenarios: u32
+                       , scenario_creator: F
+                       , result_expected: G ) -> bool
     where F: Fn() -> Scenario, G: Fn(Vec<Interaction>) -> bool
 {
     let mut success = true;
