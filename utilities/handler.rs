@@ -63,7 +63,12 @@ pub fn time_batch<F>(creator: F, num_runs: u32, num_batches: u32) -> Batch
         let mut scenarios: Vec<Box<HasScenario>> = vec!();
         for _ in 0..num_runs { scenarios.push(creator()) };
         let start = PreciseTime::now();
-        for s in scenarios.iter_mut() { s.run() };
+
+        let mut to_execute = || for s in scenarios.iter_mut() {
+            black_box(s.run())
+        };
+        black_box(to_execute());
+
         let elapsed = start.to(PreciseTime::now());
         timing.push(elapsed.num_microseconds().unwrap())
     };
