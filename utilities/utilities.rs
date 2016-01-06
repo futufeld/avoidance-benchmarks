@@ -5,7 +5,7 @@ use std::io::prelude::*;
 use std::path::Path;
 
 use super::getopts::Options;
-use super::handler::LabelledBatch;
+use super::handler::ObstacleBatch;
 use super::serde_json::to_string_pretty;
 use super::test::black_box;
 use super::time::PreciseTime;
@@ -42,7 +42,7 @@ pub fn get_filepath() -> Option<String> {
 }
 
 // Writes test information to the specified file.
-pub fn write_batches(filepath: &Path, batches: &Vec<LabelledBatch>) {
+pub fn write_batches(filepath: &Path, batches: &Vec<ObstacleBatch>) {
     let json = to_string_pretty(&batches).unwrap();
 
     let mut file = match File::create(&filepath) {
@@ -60,8 +60,8 @@ pub fn write_batches(filepath: &Path, batches: &Vec<LabelledBatch>) {
     }
 }
 
-// Convenience function for writing LabelledBatch data to user-specified file.
-pub fn write_results(results: &Vec<LabelledBatch>) {
+// Convenience function for writing ObstacleBatch data to user-specified file.
+pub fn write_results(results: &Vec<ObstacleBatch>) {
     match get_filepath() {
         Some(filestring) => {
             let filepath = Path::new(&filestring);

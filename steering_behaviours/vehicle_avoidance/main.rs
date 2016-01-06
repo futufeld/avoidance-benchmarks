@@ -6,23 +6,26 @@ use utilities::handler::*;
 use utilities::utilities::*;
 use utilities::constants::*;
 
-// Invokes test handler using the specified scenario type.
-fn time_case<F>(label: String, scenario: F, num_obstacles: u32)
-    -> LabelledBatch where F: Fn(u32) -> Scenario
-{
-    let creator = || -> Box<HasScenario> { Box::new(scenario(num_obstacles)) };
-    LabelledBatch::new(label, time_batch(creator, NUM_RUNS, NUM_BATCHES))
-}
-
 // Starts benchmarks and writes results to file.
 fn main() {
     let run = || {
         let mut results = vec!();
-        for n in 1..6 {
-            let label1 = format!("Insignificant {}-0 Significant", n);
-            results.push(time_case(label1, case1_scenario, n));
-            let label2 = format!("Insignificant 0-{} Significant", n);
-            results.push(time_case(label2, case2_scenario, n));
+        for i in 1..6 {
+            let creator1 = || -> Box<HasScenario> {
+                Box::new(case1_scenario(i))
+            };
+            let interaction1 = Obstacles::none_significant(i);
+            let batch1 = time_batch(creator1, NUM_RUNS, NUM_BATCHES);
+            let results1 = ObstacleBatch::new(interaction1, batch1);
+            results.push(results1);
+
+            let creator2 = || -> Box<HasScenario> {
+                Box::new(case2_scenario(i))
+            };
+            let interaction2 = Obstacles::all_significant(i);
+            let batch2 = time_batch(creator2, NUM_RUNS, NUM_BATCHES);
+            let results2 = ObstacleBatch::new(interaction2, batch2);
+            results.push(results2);
         }
         write_results(&results);
     };

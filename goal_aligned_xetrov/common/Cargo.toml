@@ -12,3 +12,6 @@ path = "../../linalg"
 
 [dependencies.utilities]
 path = "../../utilities"
+
+[dependencies]
+time = "*"
