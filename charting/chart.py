@@ -1,5 +1,6 @@
 from __future__ import division
 
+from collections import namedtuple
 import json
 import os, sys
 
@@ -9,8 +10,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pylab
 
+Benchmark = namedtuple('Benchmark', ['obstacles', 'run_times'])
+
 #
-#
+# Configure matplotlib settings
 #
 
 rc('text', usetex=True)
@@ -47,11 +50,11 @@ def chart(filepath):
         collisions, then sorts by how many obstacles are involved. Used to
         sort benchmarks in preparation of charting.
         """
-        if x[0]['significant'] > 0 and y[0]['significant'] == 0:
+        if x.obstacles['significant'] > 0 and y.obstacles['significant'] == 0:
             return 1
-        if x[0]['significant'] == 0 and y[0]['significant'] > 0:
+        if x.obstacles['significant'] == 0 and y.obstacles['significant'] > 0:
             return -1
-        return 1 if x[0]['total'] > y[0]['total'] else -1
+        return 1 if x.obstacles['total'] > y.obstacles['total'] else -1
 
     with open(filepath, 'r') as data_file:
         data_json = json.loads(data_file.read())
@@ -61,7 +64,7 @@ def chart(filepath):
         for benchmark in data_json:
             obstacles = benchmark['obstacles']
             run_times = benchmark['batch']['run_times']
-            benchmarks += [ (obstacles, run_times) ]
+            benchmarks += [ Benchmark(obstacles, run_times) ]
 
             # Print proportion of outliers.
             q75, q25 = np.percentile(run_times, [75, 25])
@@ -78,7 +81,7 @@ def chart(filepath):
         plt.subplots_adjust(left=0.15, right=0.95, top=0.90, bottom=0.15)
 
         # Plot data.
-        data = [ benchmark[1] for benchmark in benchmarks ]
+        data = [ benchmark.run_times for benchmark in benchmarks ]
         high = len(data)
         half = int(high / 2)
         positions = range(1,half+1) + range(half+2, high+2)
@@ -103,7 +106,7 @@ def chart(filepath):
         # Set box labels.
         labels = []
         for benchmark in benchmarks:
-            labels += [ str(benchmark[0]['total']) ]
+            labels += [ str(benchmark.obstacles['total']) ]
         labels.insert(high, '')
         labels.insert(half, '')
         labels.insert(0, '')
@@ -111,7 +114,7 @@ def chart(filepath):
         ax.set_xticks(range(0, len(benchmarks) + 3))
         ax.set_xticklabels(labels)
         ax.set_xlabel(r'Number of obstacles', size=18, labelpad=20)
-        ax.set_ylabel(r'Time ($\mu$\,s)', size=18, labelpad=10)
+        ax.set_ylabel(r'Time ($\mu$\,s)', size=18, labelpad=15)
 
         # Configure chart appearance.
         ax.spines['right'].set_visible(False)
