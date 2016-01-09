@@ -2,8 +2,6 @@ use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
 use super::common::types::Frame;
 
-use std::cmp::Ordering::Equal;
-
 // Used to indicate degenerate segment geometry.
 #[derive(Debug)]
 pub struct Degenerate;
@@ -16,15 +14,16 @@ enum LineLine {
 }
 
 // Used to describe intersection between a feeler and wall.
+#[derive(Copy, Clone)]
 pub struct Interaction {
     force: Vec2D,
-    distance: f64
+    dist: f64
 }
 
 impl Interaction {
     // Creates an interaction from the given values.
-    fn new(force: Vec2D, distance: f64) -> Interaction {
-        Interaction { force: force, distance: distance }
+    fn new(force: Vec2D, dist: f64) -> Interaction {
+        Interaction { force: force, dist: dist }
     }
 }
 
@@ -137,38 +136,33 @@ impl Vehicle {
                     normal = normal.neg()
                 }
 
-                let distance = feeler.point1.sub(point).mag();
-                let force = normal.mul(feeler.length - distance);
-                Some(Interaction::new(force, distance))
+                let dist = feeler.point1.sub(point).mag();
+                let force = normal.mul(feeler.length - dist);
+                Some(Interaction::new(force, dist))
             },
             None => None
         }
     }
 
-    // Returns a vector of interactions between feelers attached to this
-    // vehicle and the given walls.
-    pub fn wall_interactions(&self, walls: &Vec<Segment>) -> Vec<Interaction> {
-        let mut interactions = vec!();
-        for local_feeler in self.feelers.iter() {
-            let feeler = local_feeler.transform(&self.frame.to_world);
-            for wall in walls.iter() {
-                match self.wall_interaction(&feeler, &wall) {
-                    Some(x) => interactions.push(x),
-                    None => ()
-                }
-            }
-        }
-        interactions
-    }
-
     // Return a force intended to prevent collision between the vehicle and a
     // collection of walls.
     pub fn wall_avoidance(&self, walls: &Vec<Segment>) -> Option<Vec2D> {
-        let mut interactions = self.wall_interactions(walls);
-        if interactions.len() == 0 { return None };
-        interactions.sort_by(|a, b| {
-            a.distance.partial_cmp(&b.distance).unwrap_or(Equal)
-        });
-        Some(interactions[0].force)
+        let mut nearest: Option<Interaction> = None;
+        for local_feeler in self.feelers.iter() {
+            let feeler = local_feeler.transform(&self.frame.to_world);
+            for wall in walls.iter() {
+
+                // Check if interaction is closer than known nearest.
+                let interaction = self.wall_interaction(&feeler, &wall);
+                if let Some(int) = interaction {
+                    if let Some(near) = nearest {
+                        if int.dist < near.dist { nearest = interaction }
+                    } else {
+                        nearest = interaction
+                    }
+                }
+            }
+        }
+        if let Some(x) = nearest { Some(x.force) } else { None }
     }
 }
