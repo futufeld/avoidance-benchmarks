@@ -126,7 +126,7 @@ impl Vehicle {
     }
 
     // Returns an interaction, if it exists, between a feeler and wall.
-    fn wall_interaction(&self, feeler: &Segment, wall: &Segment)
+    pub fn interaction(&self, feeler: &Segment, wall: &Segment)
         -> Option<Interaction>
     {
         match feeler.segment_intersection(wall) {
@@ -153,7 +153,7 @@ impl Vehicle {
             for wall in walls.iter() {
 
                 // Check if interaction is closer than known nearest.
-                let interaction = self.wall_interaction(&feeler, &wall);
+                let interaction = self.interaction(&feeler, &wall);
                 if let Some(int) = interaction {
                     if let Some(near) = nearest {
                         if int.dist < near.dist { nearest = interaction }

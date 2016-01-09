@@ -4,6 +4,7 @@ use super::linalg::vector2d::*;
 use super::linalg::matrix2d::*;
 use super::utilities::handler::*;
 use super::common::types::Frame;
+use super::common::test_utilities::TestableScenario;
 
 use super::rand::thread_rng;
 use super::rand::distributions::{IndependentSample, Range};
@@ -21,6 +22,24 @@ impl HasScenario for Scenario {
     fn run(&mut self) {
         self.vehicle.frame.update_matrices();
         let _ = self.vehicle.obstacle_avoidance(&self.circles);
+    }
+}
+
+impl TestableScenario for Scenario {
+    // Returns the interactions between the vehicle and obstacles in the
+    // scenario.
+    fn interactions(&self) -> u32 {
+        let mut count = 0;
+        for vehicle in self.circles.iter() {
+            if self.vehicle.interaction(vehicle).is_some() { count += 1; }
+        }
+        count
+    }
+
+    // Returns the avoidance force to be applied to the vehicle according to
+    // the steering scenario.
+    fn avoidance(&self) -> Option<Vec2D> {
+        self.vehicle.obstacle_avoidance(&self.circles)
     }
 }
 
