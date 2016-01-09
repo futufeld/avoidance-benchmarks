@@ -1,8 +1,6 @@
 use super::linalg::vector2d::*;
 use super::common::types::Frame;
 
-use std::cmp::Ordering::Equal;
-
 // Weighting factor for obstacle avoidance steering force.
 const BRAKING_WEIGHT: f64 = 2f64;
 
@@ -26,18 +24,19 @@ pub enum FeelerResult {
     Case3(Interaction)
 }
 
-// Pairs a circle with a point. Used to capture interactions between vehicle
+// Pairs a circle with a distance. Used to capture interactions between vehicle
 // feeler and circles.
+#[derive(Copy, Clone)]
 pub struct Interaction {
-    point: Vec2D,
+    dist: f64,
     centre: Vec2D,
     radius: f64
 }
 
 impl Interaction {
     // Creates an interaction containing the provided values.
-    fn new(point: Vec2D, centre: Vec2D, radius: f64) -> Interaction {
-        Interaction { point: point, centre: centre, radius: radius }
+    fn new(distance: f64, centre: Vec2D, radius: f64) -> Interaction {
+        Interaction { dist: distance, centre: centre, radius: radius }
     }
 }
 
@@ -61,7 +60,7 @@ impl Vehicle {
 
     // Returns the interaction between the vehicle's feeler and the given
     // circle.
-    pub fn intersection(&self, circle: &Circle) -> Option<Interaction> {
+    pub fn interaction(&self, circle: &Circle) -> Option<Interaction> {
         let local_centre = self.frame.to_local.transform(circle.centre);
         if local_centre.y.abs() > circle.radius + self.width {
             return None;
@@ -69,35 +68,31 @@ impl Vehicle {
 
         let r2 = (circle.radius + self.width) * (circle.radius + self.width);
         let y2 = local_centre.y * local_centre.y;
-        let x = -self.length * (local_centre.x + (r2 - y2).sqrt());
-        let local_point = if x < 0f64 {
-            Vec2D::zero()
-        } else {
-            Vec2D::new(x, 0f64)
-        };
-        Some(Interaction::new(local_point, local_centre, circle.radius))
+        let mut x = -self.length * (local_centre.x + (r2 - y2).sqrt());
+        if x < 0f64 { x = 0f64 };
+        Some(Interaction::new(x, local_centre, circle.radius))
     }
 
     // Returns a force intended to prevent collision between the vehicle and a
     // collection of circles.
     pub fn obstacle_avoidance(&self, circles: &Vec<Circle>) -> Option<Vec2D> {
+
         // Collect interactions between vehicle's feeler and circles.
-        let mut interactions = vec!();
+        let mut nearest: Option<Interaction> = None;
         for circle in circles.iter() {
-            match self.intersection(circle) {
-                Some(x) => interactions.push(x),
-                None => ()
+
+            // Check if interaction is closer than known nearest.
+            let interaction = self.interaction(circle);
+            if let Some(int) = interaction {
+                if let Some(near) = nearest {
+                    if int.dist < near.dist { nearest = interaction }
+                } else {
+                    nearest = interaction
+                }
             }
         }
-
-        // Get the nearest interaction.
-        if interactions.len() == 0 { return None };
-        interactions.sort_by(|a, b| {
-            let y1 = a.point.y;
-            let y2 = b.point.y;
-            y1.partial_cmp(&y2).unwrap_or(Equal)
-        });
-        let near = &interactions[0];
+        if nearest.is_none() { return None };
+        let near: Interaction = nearest.unwrap();
 
         // Determine steering force.
         let multiplier = 1f64 + (self.length - near.centre.x) / self.length;
