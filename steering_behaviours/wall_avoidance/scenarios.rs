@@ -30,13 +30,7 @@ impl TestableScenario for Scenario {
     // scenario.
     fn interactions(&self) -> u32 {
         let mut count = 0;
-
-        // Prepare to position feelers.
-        let to_world = self.vehicle.frame.to_world.clone();
-        for local_feeler in self.vehicle.feelers.iter() {
-
-            // Test feeler-wall interaction.
-            let feeler = local_feeler.transform(&to_world);
+        for feeler in self.vehicle.local_feelers.iter() {
             for wall in self.walls.iter() {
                 if self.vehicle.interaction(&feeler, wall).is_some() {
                     count += 1;

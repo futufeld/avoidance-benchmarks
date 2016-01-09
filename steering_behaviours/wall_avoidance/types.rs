@@ -28,6 +28,7 @@ impl Interaction {
 }
 
 // Defines a line segment.
+#[derive(Clone)]
 pub struct Segment {
     pub point1: Vec2D,
     pub point2: Vec2D,
@@ -111,18 +112,31 @@ impl Segment {
 // Vehicle with feelers.
 pub struct Vehicle {
     pub frame: Frame,
-    pub feelers: Vec<Segment>
+    pub local_feelers: Vec<Segment>,
+    feelers: Vec<Segment>
 }
 
 impl Vehicle {
     // Creates a vehicle with the given values.
     pub fn new(frame: Frame, feelers: Vec<Segment>) -> Vehicle {
-        Vehicle { frame: frame, feelers: feelers }
+        let local_feelers = Vehicle::transform_feelers( &feelers
+                                                      , &frame.to_world);
+        Vehicle { frame: frame
+                , feelers: feelers
+                , local_feelers: local_feelers }
     }
 
     // Updates the matrices of the underlying frame.
     pub fn update(&mut self) {
         self.frame.update_matrices();
+        self.local_feelers = Vehicle::transform_feelers( &self.feelers
+                                                       , &self.frame.to_world);
+    }
+
+    fn transform_feelers(feelers: &Vec<Segment>, transform: &Mat2D)
+        -> Vec<Segment>
+    {
+        feelers.iter().map( |x: &Segment| x.transform(&transform) ).collect()
     }
 
     // Returns an interaction, if it exists, between a feeler and wall.
@@ -148,8 +162,7 @@ impl Vehicle {
     // collection of walls.
     pub fn wall_avoidance(&self, walls: &Vec<Segment>) -> Option<Vec2D> {
         let mut nearest: Option<Interaction> = None;
-        for local_feeler in self.feelers.iter() {
-            let feeler = local_feeler.transform(&self.frame.to_world);
+        for feeler in self.local_feelers.iter() {
             for wall in walls.iter() {
 
                 // Check if interaction is closer than known nearest.
