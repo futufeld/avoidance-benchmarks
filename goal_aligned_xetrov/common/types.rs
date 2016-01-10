@@ -15,14 +15,12 @@ pub trait HasSource {
 }
 
 // Vehicle that steers using goal-aligned xetrov field.
-pub struct Vehicle {
-    pub position: Vec2D,
-    pub velocity: Vec2D,
-    pub potential_scale: f64
-}
+pub struct Vehicle { pub position:        Vec2D
+                   , pub velocity:        Vec2D
+                   , pub potential_scale: f64 }
 
 impl HasSource for Vehicle {
-    // Return the future position of this vehicle.
+    // Returns the future position of this vehicle.
     #[allow(unused_variables)]
     fn source(&self, v: Vec2D) -> Vec2D {
         self.look_ahead()
@@ -32,8 +30,8 @@ impl HasSource for Vehicle {
 impl Vehicle {
     // Creates a vehicle from the given values.
     pub fn new(pos: Vec2D, vel: Vec2D, potential_scale: f64) -> Vehicle {
-        Vehicle { position: pos
-                , velocity: vel
+        Vehicle { position:        pos
+                , velocity:        vel
                 , potential_scale: potential_scale }
     }
 
@@ -53,7 +51,7 @@ impl Vehicle {
 
         // Determine nature of interaction.
         if distance < EPSILON { return None; }
-        if distance >= self.potential_scale { return None };
+        if distance >= self.potential_scale { return None; }
         let ratio = distance / self.potential_scale;
 
         // Calculate components of potential.
@@ -66,7 +64,7 @@ impl Vehicle {
         // Determine basis and calculate potential.
         repulsor = repulsor.mul(1f64 / distance);
         let mut tangent = repulsor.perp();
-        if tangent.dot(self.velocity) < 0f64 { tangent = tangent.neg() };
+        if tangent.dot(self.velocity) < 0f64 { tangent = tangent.neg(); }
         Some((repulsor.mul(rd).add(tangent.mul(td)), gd))
     }
 
@@ -78,14 +76,13 @@ impl Vehicle {
         let point = self.look_ahead();
         let mut potentials = vec!();
         for disc in discs.iter() {
-            match self.potential(point, disc) {
-                Some(v) => potentials.push(v),
-                None => ()
-            };
+            if let Some(v) = self.potential(point, disc) {
+                potentials.push(v);
+            }
         }
 
         // Sort potentials by magnitude.
-        if potentials.len() == 0 { return None };
+        if potentials.len() == 0 { return None; }
         potentials.sort_by(|a, b| {
             (a.1).partial_cmp(&(b.1)).unwrap_or(Equal)
         });
@@ -109,10 +106,8 @@ impl Vehicle {
 }
 
 // Arrangement of vehicle and discs to be used in benchmarks.
-pub struct Scenario {
-    pub vehicle: Vehicle,
-    pub obstacles: Vec<Box<HasSource>>
-}
+pub struct Scenario { pub vehicle: Vehicle
+                    , pub obstacles: Vec<Box<HasSource>> }
 
 impl HasScenario for Scenario {
     // Runs the scenario.

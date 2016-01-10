@@ -13,14 +13,11 @@ docs = false
 name = "wall_avoidance"
 path = "lib.rs"
 
-[dependencies.utilities]
-path = "../../utilities"
+[dependencies.common]
+path = "../common"
 
 [dependencies.linalg]
 path = "../../linalg"
 
-[dependencies.common]
-path = "../common"
-
-[dependencies]
-rand = "0.3"
+[dependencies.utilities]
+path = "../../utilities"

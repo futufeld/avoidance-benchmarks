@@ -1,6 +1,5 @@
-use super::types::*;
-
 use super::linalg::vector2d::*;
+use super::types::*;
 
 // Number of each test to execute.
 pub const NUM_RUNS: u32 = 1_000;

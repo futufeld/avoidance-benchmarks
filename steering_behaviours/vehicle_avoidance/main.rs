@@ -2,9 +2,9 @@ extern crate vehicle_avoidance;
 use vehicle_avoidance::scenarios::*;
 
 extern crate utilities;
+use utilities::constants::*;
 use utilities::handler::*;
 use utilities::utilities::*;
-use utilities::constants::*;
 
 // Starts benchmarks and writes results to file.
 fn main() {

@@ -3,10 +3,8 @@ use std::fmt;
 pub const EPSILON: f64 = 1e-8;
 
 #[derive(Copy, Clone)]
-pub struct Vec2D {
-    pub x: f64,
-    pub y: f64
-}
+pub struct Vec2D { pub x: f64
+                 , pub y: f64 }
 
 impl fmt::Display for Vec2D {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

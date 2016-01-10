@@ -1,16 +1,8 @@
-use super::linalg::vector2d::*;
 use super::common::types::*;
-
-use super::rand::thread_rng;
-use super::rand::distributions::{IndependentSample, Range};
+use super::linalg::vector2d::*;
+use super::utilities::utilities::random_unity;
 
 use std::f64::consts::PI;
-
-// Returns a random f64 between 0 and 1 using the thread's random number
-// generator.
-fn random_unity() -> f64 {
-    Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
-}
 
 // Returns a vehicle with semi-random position and velocity and a fixed
 // potential scale.

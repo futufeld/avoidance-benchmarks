@@ -2,9 +2,9 @@ extern crate wall_avoidance;
 use wall_avoidance::scenarios::*;
 
 extern crate utilities;
+use utilities::constants::*;
 use utilities::handler::*;
 use utilities::utilities::*;
-use utilities::constants::*;
 
 // Runs benchmarks for scenarios involving insignificant obstacles.
 fn case1_benchmarks() -> Vec<ObstacleBatch> {

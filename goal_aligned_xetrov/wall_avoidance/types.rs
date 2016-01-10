@@ -1,20 +1,17 @@
-use super::linalg::vector2d::*;
-use super::linalg::matrix2d::*;
-
 use super::common::types::HasSource;
+use super::linalg::matrix2d::*;
+use super::linalg::vector2d::*;
 
 // Defines transforms in and out of a space containing a line segment.
-pub struct Segment {
-    pub to_world: Mat2D,
-    pub to_local: Mat2D
-}
+pub struct Segment { pub to_world: Mat2D
+                   , pub to_local: Mat2D }
 
 impl HasSource for Segment {
     // Returns the source corresponding to the given point.
     fn source(&self, v: Vec2D) -> Vec2D {
         let mut local = self.to_local.transform(v);
-        if local.x < 0f64 { local.x = 0f64 };
-        if local.x > 1f64 { local.x = 1f64 };
+        if local.x < 0f64 { local.x = 0f64; }
+        if local.x > 1f64 { local.x = 1f64; }
         local.y = 0f64;
         self.to_world.transform(local)
     }

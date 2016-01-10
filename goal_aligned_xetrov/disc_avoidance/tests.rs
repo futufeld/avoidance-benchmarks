@@ -1,8 +1,7 @@
 #![cfg(test)]
 
-use super::scenarios::*;
-
 use super::common::test_utilities::*;
+use super::scenarios::*;
 
 // Tests that Case 1 scenarios produce no potential.
 #[test]

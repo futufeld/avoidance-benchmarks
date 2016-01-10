@@ -13,15 +13,14 @@ docs = false
 name = "wall_avoidance"
 path = "lib.rs"
 
+[dependencies.common]
+path = "../common"
+
 [dependencies.linalg]
 path = "../../linalg"
 
 [dependencies.utilities]
 path = "../../utilities"
 
-[dependencies.common]
-path = "../common"
-
 [dependencies]
-rand = "0.3"
 time = "*"

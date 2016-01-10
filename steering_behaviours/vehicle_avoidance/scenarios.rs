@@ -1,11 +1,9 @@
 use types::*;
 
+use super::common::test_utilities::TestableScenario;
 use super::linalg::vector2d::*;
 use super::utilities::handler::*;
-use super::common::test_utilities::TestableScenario;
-
-use super::rand::thread_rng;
-use super::rand::distributions::{IndependentSample, Range};
+use super::utilities::utilities::random_unity;
 
 use std::f64::consts::PI;
 
@@ -16,10 +14,8 @@ const VEHICLE_RADIUS: f64 = 5f64;
 const MAX_ACCELERATION: f64 = 25f64;
 
 // Arrangement of vehicles.
-pub struct Scenario {
-    pub vehicle: Vehicle,
-    pub other_vehicles: Vec<Vehicle>
-}
+pub struct Scenario { pub vehicle: Vehicle
+                    , pub other_vehicles: Vec<Vehicle> }
 
 impl HasScenario for Scenario {
     // Runs the scenario.
@@ -53,12 +49,6 @@ impl Scenario {
     }
 }
 
-// Returns a random f64 between 0 and 1 using the thread's random number
-// generator.
-fn random_unity() -> f64 {
-    Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
-}
-
 // Returns a scenario involving vehicles that either will or will not collide
 // at their current velocities.
 fn scenario(num_vehicles: u32, colliding: bool) -> Scenario {
@@ -84,10 +74,10 @@ fn scenario(num_vehicles: u32, colliding: bool) -> Scenario {
         let other_angle = focus_angle + angle_offset;
         let other_speed = 10f64;
         let mut other_velocity = Vec2D::polar(other_angle, other_speed);
-        if random_unity() < 0.5 { other_velocity = other_velocity.neg() };
+        if random_unity() < 0.5 { other_velocity = other_velocity.neg(); }
 
         let other_travel = other_velocity.neg().mul(time);
-        if !colliding { other_velocity = other_velocity.neg() };
+        if !colliding { other_velocity = other_velocity.neg(); }
         let other_position = intersection.add(other_travel);
 
         let other_vehicle = Vehicle::new( other_position

@@ -16,11 +16,8 @@ path = "lib.rs"
 [dependencies.common]
 path = "../common"
 
-[dependencies.utilities]
-path = "../../utilities"
-
 [dependencies.linalg]
 path = "../../linalg"
 
-[dependencies]
-rand = "0.3"
+[dependencies.utilities]
+path = "../../utilities"

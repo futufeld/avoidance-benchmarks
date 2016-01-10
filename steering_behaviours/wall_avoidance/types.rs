@@ -7,18 +7,14 @@ use super::common::types::Frame;
 pub struct Degenerate;
 
 // Captures the intersection between two lines.
-enum LineLine {
-    Coincident,
-    Parallel,
-    Intersect(f64,f64)
-}
+enum LineLine { Coincident
+              , Parallel
+              , Intersect(f64,f64) }
 
 // Used to describe intersection between a feeler and wall.
 #[derive(Copy, Clone)]
-pub struct Interaction {
-    force: Vec2D,
-    dist: f64
-}
+pub struct Interaction { force: Vec2D
+                       , dist:  f64 }
 
 impl Interaction {
     // Creates an interaction from the given values.
@@ -29,13 +25,11 @@ impl Interaction {
 
 // Defines a line segment.
 #[derive(Clone)]
-pub struct Segment {
-    pub point1: Vec2D,
-    pub point2: Vec2D,
-    pub length: f64,
-    pub unit: Vec2D,
-    pub normal: Vec2D
-}
+pub struct Segment { pub point1: Vec2D
+                   , pub point2: Vec2D
+                   , pub length: f64
+                   , pub unit:   Vec2D
+                   , pub normal: Vec2D }
 
 impl Segment {
     // Creates a line segment from the given points.
@@ -56,7 +50,7 @@ impl Segment {
         Segment { point1: m.transform(self.point1)
                 , point2: m.transform(self.point2)
                 , length: self.length
-                , unit: self.unit
+                , unit:   self.unit
                 , normal: self.normal }
     }
 
@@ -99,7 +93,7 @@ impl Segment {
                 let u1_xsect = u1 >= 0f64 && u1 <= 1f64;
                 let u2_xsect = u2 >= 0f64 && u2 <= 1f64;
                 
-                if !u1_xsect || !u2_xsect { return None };
+                if !u1_xsect || !u2_xsect { return None; }
 
                 let diff = self.point2.sub(self.point1);
                 Some(self.point1.add(diff.mul(u1)))
@@ -110,19 +104,18 @@ impl Segment {
 }
 
 // Vehicle with feelers.
-pub struct Vehicle {
-    pub frame: Frame,
-    pub local_feelers: Vec<Segment>,
-    feelers: Vec<Segment>
+pub struct Vehicle {     frame:         Frame
+                   , pub local_feelers: Vec<Segment>
+                   ,     feelers:       Vec<Segment>
 }
 
 impl Vehicle {
     // Creates a vehicle with the given values.
     pub fn new(frame: Frame, feelers: Vec<Segment>) -> Vehicle {
         let local_feelers = Vehicle::transform_feelers( &feelers
-                                                      , &frame.to_world);
-        Vehicle { frame: frame
-                , feelers: feelers
+                                                      , &frame.to_world );
+        Vehicle { frame:         frame
+                , feelers:       feelers
                 , local_feelers: local_feelers }
     }
 
@@ -130,9 +123,10 @@ impl Vehicle {
     pub fn update(&mut self) {
         self.frame.update_matrices();
         self.local_feelers = Vehicle::transform_feelers( &self.feelers
-                                                       , &self.frame.to_world);
+                                                       , &self.frame.to_world );
     }
 
+    // Returns the world positions of the segments attached to this vehicle.
     fn transform_feelers(feelers: &Vec<Segment>, transform: &Mat2D)
         -> Vec<Segment>
     {
@@ -147,7 +141,7 @@ impl Vehicle {
             Some(point) => {
                 let mut normal = wall.normal;
                 if normal.dot(feeler.unit) > 0f64 {
-                    normal = normal.neg()
+                    normal = normal.neg();
                 }
 
                 let dist = feeler.point1.sub(point).mag();

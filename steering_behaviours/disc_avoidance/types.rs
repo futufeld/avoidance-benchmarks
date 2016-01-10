@@ -1,37 +1,33 @@
-use super::linalg::vector2d::*;
 use super::common::types::Frame;
+use super::linalg::vector2d::*;
 
 // Weighting factor for obstacle avoidance steering force.
 const BRAKING_WEIGHT: f64 = 2f64;
 
-// Defines a circle.
-pub struct Circle {
-    pub centre: Vec2D,
-    pub radius: f64
-}
+// Defines a disc.
+pub struct Disc { pub centre: Vec2D
+                , pub radius: f64 }
 
-impl Circle {
-    // Creates a circle from the given centre and radius.
-    pub fn new(centre: Vec2D, radius: f64) -> Circle {
-        Circle { centre: centre, radius: radius }
+impl Disc {
+    // Creates a disc from the given centre and radius.
+    pub fn new(centre: Vec2D, radius: f64) -> Disc {
+        Disc { centre: centre, radius: radius }
     }
 }
 
-// Result of interaction between feeler and circle.
+// Result of interaction between feeler and disc.
 pub enum FeelerResult {
     Case1,
     Case2(Interaction),
     Case3(Interaction)
 }
 
-// Pairs a circle with a distance. Used to capture interactions between vehicle
-// feeler and circles.
+// Pairs a disc with a distance. Used to capture interactions between vehicle
+// feeler and discs.
 #[derive(Copy, Clone)]
-pub struct Interaction {
-    dist: f64,
-    centre: Vec2D,
-    radius: f64
-}
+pub struct Interaction { dist:   f64
+                       , centre: Vec2D
+                       , radius: f64 }
 
 impl Interaction {
     // Creates an interaction containing the provided values.
@@ -41,11 +37,9 @@ impl Interaction {
 }
 
 // Defines a vehicle with a single feeler volume.
-pub struct Vehicle {
-    pub frame: Frame,
-    pub length: f64,
-    pub width: f64,
-}
+pub struct Vehicle { pub frame:  Frame
+                   ,     length: f64
+                   ,     width:  f64 }
 
 impl Vehicle {
     // Creates a new vehicle using the given values.
@@ -59,30 +53,30 @@ impl Vehicle {
     }
 
     // Returns the interaction between the vehicle's feeler and the given
-    // circle.
-    pub fn interaction(&self, circle: &Circle) -> Option<Interaction> {
-        let local_centre = self.frame.to_local.transform(circle.centre);
-        if local_centre.y.abs() > circle.radius + self.width {
+    // disc.
+    pub fn interaction(&self, disc: &Disc) -> Option<Interaction> {
+        let local_centre = self.frame.to_local.transform(disc.centre);
+        if local_centre.y.abs() > disc.radius + self.width {
             return None;
         }
 
-        let r2 = (circle.radius + self.width) * (circle.radius + self.width);
+        let r2 = (disc.radius + self.width) * (disc.radius + self.width);
         let y2 = local_centre.y * local_centre.y;
         let mut x = -self.length * (local_centre.x + (r2 - y2).sqrt());
-        if x < 0f64 { x = 0f64 };
-        Some(Interaction::new(x, local_centre, circle.radius))
+        if x < 0f64 { x = 0f64; }
+        Some(Interaction::new(x, local_centre, disc.radius))
     }
 
     // Returns a force intended to prevent collision between the vehicle and a
-    // collection of circles.
-    pub fn obstacle_avoidance(&self, circles: &Vec<Circle>) -> Option<Vec2D> {
+    // collection of discs.
+    pub fn obstacle_avoidance(&self, discs: &Vec<Disc>) -> Option<Vec2D> {
 
-        // Collect interactions between vehicle's feeler and circles.
+        // Collect interactions between vehicle's feeler and discs.
         let mut nearest: Option<Interaction> = None;
-        for circle in circles.iter() {
+        for disc in discs.iter() {
 
             // Check if interaction is closer than known nearest.
-            let interaction = self.interaction(circle);
+            let interaction = self.interaction(disc);
             if let Some(int) = interaction {
                 if let Some(near) = nearest {
                     if int.dist < near.dist { nearest = interaction }
@@ -91,7 +85,7 @@ impl Vehicle {
                 }
             }
         }
-        if nearest.is_none() { return None };
+        if nearest.is_none() { return None; }
         let near: Interaction = nearest.unwrap();
 
         // Determine steering force.

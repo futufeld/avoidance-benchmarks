@@ -1,21 +1,17 @@
 use types::*;
 
-use super::linalg::vector2d::*;
-use super::linalg::matrix2d::*;
-use super::utilities::handler::*;
-use super::common::types::Frame;
 use super::common::test_utilities::TestableScenario;
-
-use super::rand::thread_rng;
-use super::rand::distributions::{IndependentSample, Range};
+use super::common::types::Frame;
+use super::linalg::matrix2d::*;
+use super::linalg::vector2d::*;
+use super::utilities::handler::*;
+use super::utilities::utilities::random_unity;
 
 use std::f64::consts::PI;
 
 // Arrangement of vehicle and line segment obstacles.
-pub struct Scenario {
-    pub vehicle: Vehicle,
-    pub walls: Vec<Segment>
-}
+pub struct Scenario { pub vehicle: Vehicle
+                    , pub walls: Vec<Segment> }
 
 impl HasScenario for Scenario {
     // Runs the scenario.
@@ -57,12 +53,6 @@ impl Scenario {
 // Defines feeler arrangements.
 #[derive(Copy, Clone)]
 pub enum FeelerShape { Spear, Fork, Trident }
-
-// Returns a random f64 between 0 and 1 using the thread's random number
-// generator.
-fn random_unity() -> f64 {
-    Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
-}
 
 // Returns a frame with semi-random position and orientation.
 fn random_frame() -> Frame {

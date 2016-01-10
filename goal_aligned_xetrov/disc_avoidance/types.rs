@@ -1,21 +1,18 @@
-use super::linalg::vector2d::*;
-use super::linalg::matrix2d::*;
-
 use super::common::types::HasSource;
+use super::linalg::matrix2d::*;
+use super::linalg::vector2d::*;
 
 // Defines transforms in and out of a space containing a disc.
-pub struct Disc {
-    pub to_world: Mat2D,
-    pub to_local: Mat2D,
-    pub radius: f64
-}
+pub struct Disc { pub to_world: Mat2D
+                , pub to_local: Mat2D
+                , pub radius:   f64 }
 
 impl HasSource for Disc {
     // Returns the source corresponding to the given point.
     fn source(&self, v: Vec2D) -> Vec2D {
         let local = self.to_local.transform(v);
         let mag = local.mag();
-        if mag <= self.radius { return v };
+        if mag <= self.radius { return v; }
         let source = local.mul(self.radius / mag);
         self.to_world.transform(source)
     }

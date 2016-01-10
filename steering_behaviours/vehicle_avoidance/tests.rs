@@ -1,8 +1,7 @@
 #![cfg(test)]
 
-use super::scenarios::*;
-
 use super::common::test_utilities::*;
+use super::scenarios::*;
 
 // Tests whether vehicle's feeler correctly identifies case 1 scenarios.
 #[test]

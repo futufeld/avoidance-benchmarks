@@ -2,9 +2,9 @@ extern crate obstacle_avoidance;
 use obstacle_avoidance::scenarios::*;
 
 extern crate utilities;
+use utilities::constants::*;
 use utilities::handler::*;
 use utilities::utilities::*;
-use utilities::constants::*;
 
 // Length of the feeler.
 const FEELER_LENGTH: f64 = 10f64;

@@ -1,9 +1,7 @@
 use super::vector2d::Vec2D;
 
 #[derive(Clone)]
-pub struct Mat2D {
-    m: [[f64; 3]; 3]
-}
+pub struct Mat2D { m: [[f64; 3]; 3] }
 
 impl Mat2D {
     pub fn new(values: [[f64; 3]; 3]) -> Mat2D {

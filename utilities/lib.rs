@@ -2,6 +2,7 @@
 #![plugin(serde_macros)]
 
 extern crate getopts;
+extern crate rand;
 extern crate serde;
 extern crate serde_json;
 extern crate test;
