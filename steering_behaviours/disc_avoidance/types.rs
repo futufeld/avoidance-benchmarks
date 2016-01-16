@@ -1,5 +1,5 @@
 use super::common::types::Frame;
-use super::linalg::vector2d::*;
+use super::linalg::vector2d::Vec2D;
 
 // Weighting factor for obstacle avoidance steering force.
 const BRAKING_WEIGHT: f64 = 2f64;

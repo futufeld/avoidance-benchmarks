@@ -1,36 +1,20 @@
 #![cfg(test)]
 
-use super::common::test_utilities::*;
-use super::scenarios::*;
+use super::scenarios::scenario_with_obstacles;
+use super::utilities::types::Obstacles;
+use super::utilities::test_utilities::test_scenarios;
 
-// Tests whether vehicle's feeler correctly identifies case 1 scenarios.
 #[test]
-fn test_case1() {
-    let creator = || Box::new(case1_scenario(FeelerShape::Spear));
-    assert!(expected_interactions(|| creator(), 0u32));
-    assert!(expected_avoidance(|| creator(), false));
+fn test() {
+    let mut obstacles = vec!();
+    obstacles.push(Obstacles::new(1u32, 0u32));
+    obstacles.push(Obstacles::new(4u32, 0u32));
+    obstacles.push(Obstacles::new(9u32, 0u32));
+    obstacles.push(Obstacles::new(0u32, 1u32));
+    obstacles.push(Obstacles::new(2u32, 2u32));
+    obstacles.push(Obstacles::new(6u32, 3u32));
 
-    let creator = || Box::new(case1_scenario(FeelerShape::Fork));
-    assert!(expected_interactions(|| creator(), 0u32));
-    assert!(expected_avoidance(|| creator(), false));
-
-    let creator = || Box::new(case1_scenario(FeelerShape::Trident));
-    assert!(expected_interactions(|| creator(), 0u32));
-    assert!(expected_avoidance(|| creator(), false));
-}
-
-// Tests whether vehicle's feeler correctly identifies case 2 scenarios.
-#[test]
-fn test_case2() {
-    let creator = || Box::new(case2_scenario(FeelerShape::Spear));
-    assert!(expected_interactions(|| creator(), 1u32));
-    assert!(expected_avoidance(|| creator(), true));
-
-    let creator = || Box::new(case2_scenario(FeelerShape::Fork));
-    assert!(expected_interactions(|| creator(), 2u32));
-    assert!(expected_avoidance(|| creator(), true));
-
-    let creator = || Box::new(case2_scenario(FeelerShape::Trident));
-    assert!(expected_interactions(|| creator(), 3u32));
-    assert!(expected_avoidance(|| creator(), true));
+    for obstacle in obstacles.iter() {
+        assert!(test_scenarios(&obstacle, scenario_with_obstacles));
+    }
 }

@@ -1,22 +1,14 @@
+use super::bench_utilities::ObstacleBatch;
+use super::getopts::Options;
+use super::serde_json::to_string_pretty;
+use super::test::black_box;
+use super::time::PreciseTime;
+
 use std::env;
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-
-use super::getopts::Options;
-use super::handler::ObstacleBatch;
-use super::rand::distributions::{IndependentSample, Range};
-use super::rand::thread_rng;
-use super::serde_json::to_string_pretty;
-use super::test::black_box;
-use super::time::PreciseTime;
-
-// Returns a random value between 0f64 and 1f64 using the thread's random
-// number generator.
-pub fn random_unity() -> f64 {
-    Range::new(0f64, 1f64).ind_sample(&mut thread_rng())
-}
 
 // Times the execution of the given function in seconds.
 pub fn time_execution_seconds<F>(to_execute :F) -> i64

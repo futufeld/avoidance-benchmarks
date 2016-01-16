@@ -1,6 +1,7 @@
 extern crate utilities;
-use utilities::handler::*;
-use utilities::utilities::*;
+use utilities::bench_utilities::time_batch;
+use utilities::types::{HasScenario, Obstacles};
+use utilities::utilities::write_results;
 
 extern crate time;
 use self::time::PreciseTime;

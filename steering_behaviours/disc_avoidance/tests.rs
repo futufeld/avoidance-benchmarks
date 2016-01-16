@@ -1,20 +1,25 @@
 #![cfg(test)]
 
-use super::common::test_utilities::*;
-use super::scenarios::*;
+use super::scenarios::scenario_with_obstacles;
+use super::utilities::types::{HasScenario, Obstacles};
+use super::utilities::test_utilities::test_scenarios;
 
-// Tests whether vehicle's feeler correctly identifies case 1 scenarios.
-#[test]
-fn test_case1() {
-    let creator = || Box::new(case1_scenario(3u32, 10f64, 2f64));
-    assert!(expected_interactions(|| creator(), 0u32));
-    assert!(expected_avoidance(|| creator(), false));
-}
+// Length of the feeler.
+const FEELER_LENGTH: f64 = 10f64;
 
-// Tests whether vehicle's feeler correctly identifies case 2 scenarios.
+// Width of the feeler.
+const FEELER_WIDTH: f64 = 2f64;
+
 #[test]
-fn test_case2() {
-    let creator = || Box::new(case2_scenario(3u32, 10f64, 2f64));
-    assert!(expected_interactions(|| creator(), 3u32));
-    assert!(expected_avoidance(|| creator(), true));
+fn test() {
+    let creator = |o: &Obstacles| -> Option<Box<HasScenario>> {
+        scenario_with_obstacles(o, FEELER_LENGTH, FEELER_WIDTH)
+    };
+
+    for i in 1..6 {
+        let obstacles1 = Obstacles::new(i, 0u32);
+        assert!(test_scenarios(&obstacles1, |x| creator(x)));
+        let obstacles2 = Obstacles::new(0u32, i);
+        assert!(test_scenarios(&obstacles2, |x| creator(x)));
+    }
 }

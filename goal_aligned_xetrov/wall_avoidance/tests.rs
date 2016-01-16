@@ -1,16 +1,15 @@
 #![cfg(test)]
 
-use super::common::test_utilities::*;
-use super::scenarios::*;
+use super::scenarios::scenario_with_obstacles;
+use super::utilities::test_utilities::test_scenarios;
+use super::utilities::types::Obstacles;
 
-// Tests that Case 1 scenarios produce no potential.
 #[test]
-fn test_case1() {
-    assert!(expect_no_potential(|| case1_scenario(3u32)))
-}
-
-// Tests that Case 2 scenarios produce some potential.
-#[test]
-fn test_case2() {
-    assert!(expect_some_potential(|| case2_scenario(3u32)))
+fn test() {
+    for i in 1..6 {
+        let obstacles1 = Obstacles::new(i, 0u32);
+        assert!(test_scenarios(&obstacles1, scenario_with_obstacles));
+        let obstacles2 = Obstacles::new(0u32, i);
+        assert!(test_scenarios(&obstacles2, scenario_with_obstacles));
+    }
 }

@@ -1,4 +1,4 @@
-use super::utilities::handler::HasScenario;
+use super::utilities::types::HasScenario;
 
 // Number of each test to execute.
 const NUM_RUNS: u32 = 10_000;

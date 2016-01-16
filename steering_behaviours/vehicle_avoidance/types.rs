@@ -1,7 +1,5 @@
-use super::linalg::vector2d::*;
-use super::utilities::utilities::random_unity;
-
-use std::f64::consts::PI;
+use super::linalg::vector2d::{EPSILON, Vec2D};
+use super::utilities::rng_utilities::random_tau;
 
 // Data describing approach between two vehicles.
 #[derive(Copy, Clone)]
@@ -98,8 +96,7 @@ impl Vehicle {
         // tation another mechanism would be required to resolve this case.)
         let min_separation = relative_position.mag();
         if min_separation < EPSILON {
-            let angle = 2f64 * PI * random_unity();
-            return Some(Vec2D::polar(angle, self.max_acceleration));
+            return Some(Vec2D::polar(random_tau(), self.max_acceleration));
         }
         let normalised = relative_position.mul(1f64 / min_separation);
         Some(normalised.mul(self.max_acceleration))

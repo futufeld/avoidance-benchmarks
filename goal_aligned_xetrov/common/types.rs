@@ -1,5 +1,6 @@
-use super::linalg::vector2d::*;
-use super::utilities::handler::*;
+use super::linalg::vector2d::{EPSILON, Vec2D};
+use super::utilities::types::HasScenario;
+use super::utilities::rng_utilities::{random_tau, random_unity};
 
 use std::cmp::Ordering::Equal;
 
@@ -12,6 +13,38 @@ pub const LOOK_AHEAD: f64 = 0.5f64;
 // Implementers of HasSource can return the nearest point on their geometry.
 pub trait HasSource {
     fn source(&self, v: Vec2D) -> Vec2D;
+}
+
+// Arrangement of vehicle and discs to be used in benchmarks.
+pub struct Scenario { pub vehicle: Vehicle
+                    , pub obstacles: Vec<Box<HasSource>> }
+
+impl HasScenario for Scenario {
+    // Returns the interactions between the vehicle and obstacles in the
+    // scenario.
+    fn interactions(&self) -> u32 {
+        let mut count = 0;
+        let point = self.vehicle.look_ahead();
+        for obstacle in self.obstacles.iter() {
+            if self.vehicle.potential(point, obstacle).is_some() {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    // Returns the avoidance force to be applied to the vehicle according to
+    // the steering scenario.
+    fn avoidance(&self) -> Option<Vec2D> {
+        self.vehicle.total_potential(&self.obstacles)
+    }
+}
+
+impl Scenario {
+    // Creates a scenario from the given vehicle and obstacles.
+    pub fn new(vehicle: Vehicle, obstacles: Vec<Box<HasSource>>) -> Scenario {
+        Scenario { vehicle: vehicle, obstacles: obstacles }
+    }
 }
 
 // Vehicle that steers using goal-aligned xetrov field.
@@ -105,34 +138,12 @@ impl Vehicle {
     }
 }
 
-// Arrangement of vehicle and discs to be used in benchmarks.
-pub struct Scenario { pub vehicle: Vehicle
-                    , pub obstacles: Vec<Box<HasSource>> }
-
-impl HasScenario for Scenario {
-    // Returns the interactions between the vehicle and obstacles in the
-    // scenario.
-    fn interactions(&self) -> u32 {
-        let mut count = 0;
-        let point = self.vehicle.look_ahead();
-        for obstacle in self.obstacles.iter() {
-            if self.vehicle.potential(point, obstacle).is_some() {
-                count += 1;
-            }
-        }
-        count
-    }
-
-    // Returns the avoidance force to be applied to the vehicle according to
-    // the steering scenario.
-    fn avoidance(&self) -> Option<Vec2D> {
-        self.vehicle.total_potential(&self.obstacles)
-    }
-}
-
-impl Scenario {
-    // Creates a scenario from the given vehicle and obstacles.
-    pub fn new(vehicle: Vehicle, obstacles: Vec<Box<HasSource>>) -> Scenario {
-        Scenario { vehicle: vehicle, obstacles: obstacles }
-    }
+// Returns a vehicle with semi-random position and velocity and a fixed
+// potential scale.
+#[warn(dead_code)]
+pub fn random_vehicle() -> Vehicle {
+    let angle = random_tau();
+    let position = Vec2D::polar(angle, 100f64 * random_unity());
+    let velocity = Vec2D::polar(angle, 10f64);
+    Vehicle::new(position, velocity, POTENTIAL_SCALE)
 }

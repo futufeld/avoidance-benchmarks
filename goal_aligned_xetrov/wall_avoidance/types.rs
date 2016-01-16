@@ -1,6 +1,6 @@
 use super::common::types::HasSource;
-use super::linalg::matrix2d::*;
-use super::linalg::vector2d::*;
+use super::linalg::matrix2d::Mat2D;
+use super::linalg::vector2d::Vec2D;
 
 // Defines transforms in and out of a space containing a line segment.
 pub struct Segment { pub to_world: Mat2D

@@ -1,10 +1,10 @@
 use types::*;
 
 use super::common::types::Frame;
-use super::linalg::matrix2d::*;
-use super::linalg::vector2d::*;
-use super::utilities::handler::{HasScenario, Obstacles};
-use super::utilities::utilities::random_unity;
+use super::linalg::matrix2d::Mat2D;
+use super::linalg::vector2d::Vec2D;
+use super::utilities::rng_utilities::{random_tau, random_unity};
+use super::utilities::types::{HasScenario, Obstacles};
 
 use std::f64::consts::PI;
 
@@ -40,8 +40,7 @@ impl Scenario {
 // Returns a vehicle with a semi-random position and orientation with the
 // given length and width.
 fn random_vehicle(length: f64, width: f64) -> Vehicle {
-    let angle = 2f64 * PI * random_unity();
-    let position = Vec2D::polar(angle, 100f64 * random_unity());
+    let position = Vec2D::polar(random_tau(), 100f64 * random_unity());
     let orientation = 2f64 * PI * random_unity();
     let vehicle = Frame::new(position, orientation);
     Vehicle::new(vehicle, length, width)

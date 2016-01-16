@@ -1,8 +1,8 @@
 use types::*;
 
-use super::linalg::vector2d::*;
-use super::utilities::handler::{HasScenario, Obstacles};
-use super::utilities::utilities::random_unity;
+use super::linalg::vector2d::Vec2D;
+use super::utilities::rng_utilities::{random_tau, random_unity};
+use super::utilities::types::{HasScenario, Obstacles};
 
 use std::f64::consts::PI;
 
@@ -46,7 +46,7 @@ impl Scenario {
 fn scenario(num_vehicles: u32, colliding: bool) -> Box<Scenario> {
     // Create semi-random vehicle.
     let focus_position = Vec2D::polar(2f64 * PI * random_unity(), 100f64);
-    let focus_angle = 2f64 * PI * random_unity();
+    let focus_angle = random_tau();
     let focus_speed = 10f64;
     let focus_velocity = Vec2D::polar(focus_angle, focus_speed);
 
@@ -62,7 +62,7 @@ fn scenario(num_vehicles: u32, colliding: bool) -> Box<Scenario> {
         let offset = focus_velocity.mul(time);
         let intersection = focus_position.add(offset);
 
-        let angle_offset = PI * (0.05f64 + 0.4f64 * random_unity());
+        let angle_offset = PI * (0.05f64 + 0.35f64 * random_unity());
         let other_angle = focus_angle + angle_offset;
         let other_speed = 10f64;
         let mut other_velocity = Vec2D::polar(other_angle, other_speed);

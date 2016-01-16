@@ -1,5 +1,5 @@
-use super::linalg::vector2d::*;
-use super::linalg::matrix2d::*;
+use super::linalg::vector2d::{EPSILON, Vec2D};
+use super::linalg::matrix2d::Mat2D;
 use super::common::types::Frame;
 
 // Used to indicate degenerate segment geometry.

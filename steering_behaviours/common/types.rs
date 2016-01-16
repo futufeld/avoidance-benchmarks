@@ -1,5 +1,5 @@
-use super::linalg::vector2d::*;
-use super::linalg::matrix2d::*;
+use super::linalg::matrix2d::Mat2D;
+use super::linalg::vector2d::Vec2D;
 
 // Local space with position and orientation.
 pub struct Frame { pub position:    Vec2D
