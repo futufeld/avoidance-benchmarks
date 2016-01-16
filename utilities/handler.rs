@@ -63,14 +63,19 @@ pub fn time_batch<F>(obstacles: &Obstacles, creator: F)
     where F: Fn(&Obstacles) -> Box<HasScenario>
 {
     let mut scenarios: Vec<Box<HasScenario>> =
-        (0..NUM_RUNS).map(|_| creator(obstacles)).collect();
+        (0..NUM_RUNS + 100).map(|_| creator(obstacles)).collect();
 
+    let mut count = 0;
     let mut timing = vec!();
     for s in scenarios.iter_mut() {
         let start = PreciseTime::now();
         black_box(s.avoidance());
         let elapsed = start.to(PreciseTime::now());
-        timing.push(elapsed.num_nanoseconds().unwrap());
+
+        count += 1;
+        if count >= 100 {
+            timing.push(elapsed.num_nanoseconds().unwrap());
+        }
     }
 
     ObstacleBatch::new(obstacles.clone(), Batch::new(NUM_RUNS, timing))
