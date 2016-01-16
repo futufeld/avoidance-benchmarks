@@ -1,10 +1,9 @@
 use types::*;
 
-use super::common::test_utilities::TestableScenario;
 use super::common::types::Frame;
 use super::linalg::matrix2d::*;
 use super::linalg::vector2d::*;
-use super::utilities::handler::*;
+use super::utilities::handler::{HasScenario, Obstacles};
 use super::utilities::utilities::random_unity;
 
 use std::f64::consts::PI;
@@ -14,14 +13,6 @@ pub struct Scenario { pub vehicle: Vehicle
                     , pub discs:   Vec<Disc> }
 
 impl HasScenario for Scenario {
-    // Runs the scenario.
-    fn run(&mut self) {
-        self.vehicle.frame.update_matrices();
-        let _ = self.vehicle.obstacle_avoidance(&self.discs);
-    }
-}
-
-impl TestableScenario for Scenario {
     // Returns the interactions between the vehicle and obstacles in the
     // scenario.
     fn interactions(&self) -> u32 {

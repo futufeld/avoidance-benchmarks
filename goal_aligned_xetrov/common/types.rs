@@ -110,9 +110,23 @@ pub struct Scenario { pub vehicle: Vehicle
                     , pub obstacles: Vec<Box<HasSource>> }
 
 impl HasScenario for Scenario {
-    // Runs the scenario.
-    fn run(&mut self) {
-        let _ = self.vehicle.total_potential(&self.obstacles);
+    // Returns the interactions between the vehicle and obstacles in the
+    // scenario.
+    fn interactions(&self) -> u32 {
+        let mut count = 0;
+        let point = self.vehicle.look_ahead();
+        for obstacle in self.obstacles.iter() {
+            if self.vehicle.potential(point, obstacle).is_some() {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    // Returns the avoidance force to be applied to the vehicle according to
+    // the steering scenario.
+    fn avoidance(&self) -> Option<Vec2D> {
+        self.vehicle.total_potential(&self.obstacles)
     }
 }
 

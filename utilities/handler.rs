@@ -1,9 +1,16 @@
+use super::linalg::vector2d::Vec2D;
 use super::test::black_box;
 use super::time::PreciseTime;
 
 // Number of scenarios to run for each benchmark.
 #[allow(dead_code)]
 pub const NUM_RUNS: u32 = 10_000;
+
+// For scenarios that are testable without needing to access internals.
+pub trait HasScenario {
+    fn interactions(&self) -> u32;
+    fn avoidance(&self) -> Option<Vec2D>;
+}
 
 // Contains details about obstacle interactions.
 #[derive(Copy, Clone, Serialize, Deserialize)]
@@ -50,11 +57,6 @@ impl ObstacleBatch {
     }
 }
 
-// For structs that execute scenarios.
-pub trait HasScenario {
-    fn run(&mut self);
-}
-
 // Runs a series of tests on scenarios generated using the provided function.
 pub fn time_batch<F>(obstacles: &Obstacles, creator: F)
     -> ObstacleBatch
@@ -66,7 +68,7 @@ pub fn time_batch<F>(obstacles: &Obstacles, creator: F)
     let mut timing = vec!();
     for s in scenarios.iter_mut() {
         let start = PreciseTime::now();
-        black_box(s.run());
+        black_box(s.avoidance());
         let elapsed = start.to(PreciseTime::now());
         timing.push(elapsed.num_nanoseconds().unwrap());
     }
