@@ -8,6 +8,10 @@ use super::utilities::utilities::random_unity;
 
 use std::f64::consts::PI;
 
+// Defines feeler arrangements.
+#[derive(Copy, Clone)]
+pub enum FeelerShape { Spear, Fork, Trident }
+
 // Arrangement of vehicle and line segment obstacles.
 pub struct Scenario { pub vehicle: Vehicle
                     , pub walls: Vec<Segment> }
@@ -41,10 +45,6 @@ impl Scenario {
     }
 }
 
-// Defines feeler arrangements.
-#[derive(Copy, Clone)]
-pub enum FeelerShape { Spear, Fork, Trident }
-
 // Returns a frame with semi-random position and orientation.
 fn random_frame() -> Frame {
     let angle = 2f64 * PI * random_unity();
@@ -52,34 +52,28 @@ fn random_frame() -> Frame {
     Frame::new(position, 2f64 * PI * random_unity())
 }
 
-// Returns a feeler that extends ahead of a vehicle.
-fn feeler_centre() -> Segment {
-    Segment::new(Vec2D::new(2f64, 0f64), Vec2D::new(12f64, 0f64)).unwrap()
-}
-
-// Returns a feeler that extends to the left of the vehicle.
-fn feeler_left() -> Segment {
-    Segment::new(Vec2D::new(0f64, 2f64), Vec2D::new(5f64, 7f64)).unwrap()
-}
-
-// Returns a feeler that extends to the right of the vehicle.
-fn feeler_right() -> Segment {
-    Segment::new(Vec2D::new(0f64, -2f64), Vec2D::new(5f64, -7f64)).unwrap()
-}
-
 // Returns the feelers corresponding to an arrangement.
 fn feelers(arrangement: FeelerShape) -> Vec<Segment> {
+    // Define feelers.
+    let feeler_c = Segment::new( Vec2D::new(2f64, 0f64)
+                               , Vec2D::new(12f64, 0f64) ).unwrap();
+    let feeler_l = Segment::new( Vec2D::new(0f64, 2f64)
+                               , Vec2D::new(5f64, 7f64) ).unwrap();
+    let feeler_r = Segment::new( Vec2D::new(0f64, -2f64)
+                               , Vec2D::new(5f64, -7f64) ).unwrap();
+
+    // Determine feelers to return based on feeler shape.
     let mut feelers = vec!();
     match arrangement {
-        FeelerShape::Spear => feelers.push(feeler_centre()),
+        FeelerShape::Spear => feelers.push(feeler_c),
         FeelerShape::Fork => {
-            feelers.push(feeler_left());
-            feelers.push(feeler_right());
+            feelers.push(feeler_l);
+            feelers.push(feeler_r);
         },
         FeelerShape::Trident => {
-            feelers.push(feeler_left());
-            feelers.push(feeler_centre());
-            feelers.push(feeler_right());
+            feelers.push(feeler_l);
+            feelers.push(feeler_c);
+            feelers.push(feeler_r);
         }
     };
     feelers
@@ -105,7 +99,7 @@ fn wall_near_feeler(feeler: &Segment, offset: f64) -> Segment {
 
 // Constructs a scenario for a given arragement of feelers.
 fn scenario(shape: FeelerShape, offset: f64) -> Box<Scenario> {
-    // Work-around for lexical-based borrowing.
+    // Work-around for lexical borrowing constraint.
     fn walls(feelers: &Vec<Segment>, offset: f64) -> Vec<Segment> {
         let f = |feeler| wall_near_feeler(feeler, offset);
         feelers.iter().map(f).collect()
