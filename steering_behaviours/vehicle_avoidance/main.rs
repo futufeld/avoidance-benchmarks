@@ -2,7 +2,6 @@ extern crate vehicle_avoidance;
 use vehicle_avoidance::scenarios::*;
 
 extern crate utilities;
-use utilities::constants::*;
 use utilities::handler::*;
 use utilities::utilities::*;
 
@@ -15,7 +14,7 @@ fn main() {
                 Box::new(case1_scenario(i))
             };
             let interaction1 = Obstacles::none_significant(i);
-            let batch1 = time_batch(creator1, NUM_RUNS, NUM_BATCHES);
+            let batch1 = time_batch(creator1, NUM_RUNS);
             let results1 = ObstacleBatch::new(interaction1, batch1);
             results.push(results1);
 
@@ -23,7 +22,7 @@ fn main() {
                 Box::new(case2_scenario(i))
             };
             let interaction2 = Obstacles::all_significant(i);
-            let batch2 = time_batch(creator2, NUM_RUNS, NUM_BATCHES);
+            let batch2 = time_batch(creator2, NUM_RUNS);
             let results2 = ObstacleBatch::new(interaction2, batch2);
             results.push(results2);
         }

@@ -1,6 +1,10 @@
 use super::test::black_box;
 use super::time::PreciseTime;
 
+// Number of scenarios to run for each benchmark.
+#[allow(dead_code)]
+pub const NUM_RUNS: u32 = 10_000;
+
 // Contains details about obstacle interactions.
 #[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct Obstacles { total:         u32
@@ -49,22 +53,19 @@ pub trait HasScenario {
 }
 
 // Runs a series of tests on scenarios generated using the provided function.
-pub fn time_batch<F>(creator: F, num_runs: u32, num_batches: u32) -> Batch
+pub fn time_batch<F>(creator: F, num_runs: u32) -> Batch
     where F: Fn() -> Box<HasScenario>
 {
+    let mut scenarios: Vec<Box<HasScenario>> =
+        (0..num_runs).map(|_| creator()).collect();
+
     let mut timing = vec!();
-    for _ in 0..num_batches {
-        let mut scenarios: Vec<Box<HasScenario>> = vec!();
-        for _ in 0..num_runs { scenarios.push(creator()); }
+    for s in scenarios.iter_mut() {
         let start = PreciseTime::now();
-
-        let mut to_execute = || for s in scenarios.iter_mut() {
-            black_box(s.run())
-        };
-        black_box(to_execute());
-
+        black_box(s.run());
         let elapsed = start.to(PreciseTime::now());
-        timing.push(elapsed.num_microseconds().unwrap())
-    };
+        timing.push(elapsed.num_nanoseconds().unwrap());
+    }
+
     Batch { num_runs: num_runs, run_times: timing }
 }
