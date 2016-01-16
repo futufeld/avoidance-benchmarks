@@ -1,5 +1,6 @@
 use super::common::types::*;
 use super::linalg::vector2d::*;
+use super::utilities::handler::{HasScenario, Obstacles};
 use super::utilities::utilities::random_unity;
 
 use std::f64::consts::PI;
@@ -29,22 +30,26 @@ fn near_vehicle(position: Vec2D, dist_offset: f64, potential_scale: f64)
     Box::new(Vehicle::new(position, velocity, potential_scale))
 }
 
-// Returns a semi-random scenario involving a single vehicle outside the loci
-// of influence of `num_vehicles` other vehicles.
-pub fn case1_scenario(num_vehicles: u32) -> Scenario {
+// Returns a semi-random scenario involving a single vehicle inside or outside,
+// depending on offset, the loci of influence of a number of other vehicles.
+fn scenario(num_obstacles: u32, offset: f64) -> Box<Scenario> {
     let vehicle = random_vehicle();
     let position = vehicle.look_ahead();
-    let f = |_| near_vehicle(position, 1f64 + random_unity(), POTENTIAL_SCALE);
-    let obstacles = (0..num_vehicles).map(f).collect();
-    Scenario::new(vehicle, obstacles)
+    let f = |_| near_vehicle( position
+                            , offset + random_unity()
+                            , POTENTIAL_SCALE );
+    let obstacles = (0..num_obstacles).map(f).collect();
+    Box::new(Scenario::new(vehicle, obstacles))
 }
 
-// Returns a semi-random scenario involving a single vehicle inside the loci
-// of influence of `num_vehicles` other vehicles.
-pub fn case2_scenario(num_vehicles: u32) -> Scenario {
-    let vehicle = random_vehicle();
-    let position = vehicle.look_ahead();
-    let f = |_| near_vehicle(position, random_unity(), POTENTIAL_SCALE);
-    let obstacles = (0..num_vehicles).map(f).collect();
-    Scenario::new(vehicle, obstacles)
+// Returns a scenario with the given configuration of obstacles. Returns none
+// if it is not possible to create the given scenario.
+pub fn scenario_with_obstacles(obstacles: &Obstacles)
+    -> Option<Box<HasScenario>>
+{
+    match obstacles.details() {
+        (num_obs, 0u32) => Some(scenario(num_obs, 1f64)),
+        (0u32, num_obs) => Some(scenario(num_obs, 0f64)),
+        _ => None
+    }
 }

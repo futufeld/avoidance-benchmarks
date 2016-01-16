@@ -1,9 +1,9 @@
 extern crate vehicle_avoidance;
-use vehicle_avoidance::scenarios::{case1_scenario, case2_scenario};
+use vehicle_avoidance::scenarios::scenario_with_obstacles;
 
 extern crate common;
 use common::bench_utilities::run_benchmarks;
 
 fn main() {
-    run_benchmarks(case1_scenario, case2_scenario);
+    run_benchmarks(scenario_with_obstacles);
 }

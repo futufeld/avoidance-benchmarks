@@ -1,34 +1,24 @@
-use super::types::Scenario;
-
 extern crate utilities;
 use utilities::handler::*;
-use utilities::constants::*;
 use utilities::utilities::*;
 
 extern crate time;
 use self::time::PreciseTime;
 
 // Runs benchmarks and saves results to a file specified on the command line.
-// Functions case1_scenario and case2_scenario are expected to produce
-// scenarios that involve none and some/all collision risks respectively.
-pub fn run_benchmarks<F, G>(case1_scenario: F, case2_scenario: G)
-    where F: Fn(u32) -> Scenario, G: Fn(u32) -> Scenario
+pub fn run_benchmarks<F>(scenario: F)
+    where F: Fn(&Obstacles) -> Option<Box<HasScenario>>
 {
     let start = PreciseTime::now();
 
+    let creator = |o: &Obstacles| -> Box<HasScenario> { scenario(o).unwrap() };
+
     let mut results = vec!();
     for i in 1..6 {
-        let creator1 = || -> Box<HasScenario> { Box::new(case1_scenario(i)) };
-        let interaction1 = Obstacles::none_significant(i);
-        let batch1 = time_batch(creator1, NUM_RUNS);
-        let results1 = ObstacleBatch::new(interaction1, batch1);
-        results.push(results1);
-
-        let creator2 = || -> Box<HasScenario> { Box::new(case2_scenario(i)) };
-        let interaction2 = Obstacles::all_significant(i);
-        let batch2 = time_batch(creator2, NUM_RUNS);
-        let results2 = ObstacleBatch::new(interaction2, batch2);
-        results.push(results2);
+        let interaction1 = Obstacles::new(i, 0u32);
+        results.push(time_batch(&interaction1, |x| creator(x)));
+        let interaction2 = Obstacles::new(0u32, i);
+        results.push(time_batch(&interaction2, |x| creator(x)));
     }
     write_results(&results);
 

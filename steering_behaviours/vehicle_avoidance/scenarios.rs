@@ -51,7 +51,7 @@ impl Scenario {
 
 // Returns a scenario involving vehicles that either will or will not collide
 // at their current velocities.
-fn scenario(num_vehicles: u32, colliding: bool) -> Scenario {
+fn scenario(num_vehicles: u32, colliding: bool) -> Box<Scenario> {
     // Create semi-random vehicle.
     let focus_position = Vec2D::polar(2f64 * PI * random_unity(), 100f64);
     let focus_angle = 2f64 * PI * random_unity();
@@ -86,15 +86,17 @@ fn scenario(num_vehicles: u32, colliding: bool) -> Scenario {
                                         , MAX_ACCELERATION );
         other_vehicles.push(other_vehicle);
     }
-    Scenario::new(focus_vehicle, other_vehicles)
+    Box::new(Scenario::new(focus_vehicle, other_vehicles))
 }
 
-// Returns a scenario in which collisions between all vehicles are impossible.
-pub fn case1_scenario(num_vehicles: u32) -> Scenario {
-    scenario(num_vehicles, false)
-}
-
-// Returns a scenario in which collisions between all vehicles are possible.
-pub fn case2_scenario(num_vehicles: u32) -> Scenario {
-    scenario(num_vehicles, true)
+// Returns a scenario with the given configuration of obstacles. Returns none
+// if it is not possible to create the given scenario.
+pub fn scenario_with_obstacles(obstacles: &Obstacles)
+    -> Option<Box<HasScenario>>
+{
+    match obstacles.details() {
+        (num_obs, 0u32) => Some(scenario(num_obs, false)),
+        (0u32, num_obs) => Some(scenario(num_obs, true)),
+        _ => None
+    }
 }

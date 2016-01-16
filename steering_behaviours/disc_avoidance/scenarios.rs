@@ -73,27 +73,32 @@ fn near_disc(x_scale: f64, y_scale: f64, y_offset: f64, transform: &Mat2D)
 
 // Returns a semi-random scenario involving `n` obstacles positioned with
 // respect to `x_scale`, `y_scale` and `y_offset` (see `near_disc`).
-fn scenario(n: u32, x_scale: f64, y_scale: f64, y_offset: f64) -> Scenario {
+fn scenario(n: u32, x_scale: f64, y_scale: f64, y_offset: f64)
+    -> Box<Scenario>
+{
     let vehicle = random_vehicle(x_scale, y_scale);
     let to_world = vehicle.frame.to_world.clone();
     let f = |_| near_disc(x_scale, y_scale, y_offset, &to_world);
     let discs: Vec<Disc> = (0..n).map(f).collect();
-    Scenario::new(vehicle, discs)
+    Box::new(Scenario::new(vehicle, discs))
 }
 
-// Returns a randomly-generated arrangement of one vehicle and a number of
-// discs. Each disc is guaranteed to lie outside the volume.
-pub fn case1_scenario( num_discs: u32
-                     , feeler_length: f64
-                     , feeler_width: f64 ) -> Scenario {
-    scenario(num_discs, 1f64 + random_unity(), feeler_length, feeler_width)
-}
-
-// Returns a randomly-generated arrangement of one vehicle and a number of
-// discs. Each disc is guaranteed to intersect the vehicle's feeler volume.
-pub fn case2_scenario( num_discs: u32
-                     , feeler_length: f64
-                     , feeler_width: f64 ) -> Scenario {
-    let y_offset = 2f64 * (random_unity() - 0.5f64);
-    scenario(num_discs, feeler_length, feeler_width, y_offset)
+// Returns a scenario with the given configuration of obstacles. Returns none
+// if it is not possible to create the given scenario.
+pub fn scenario_with_obstacles( obstacles: &Obstacles
+                              , feeler_length: f64
+                              , feeler_width: f64 )
+    -> Option<Box<HasScenario>>
+{
+    match obstacles.details() {
+        (num_obs, 0u32) => {
+            let offset = 1f64 + random_unity();
+            Some(scenario(num_obs, offset, feeler_length, feeler_width))
+        },
+        (0u32, num_obs) => {
+            let y_offset = 2f64 * (random_unity() - 0.5f64);
+            Some(scenario(num_obs, feeler_length, feeler_width, y_offset))
+        },
+        _ => None
+    }
 }

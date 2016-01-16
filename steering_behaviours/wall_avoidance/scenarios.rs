@@ -113,7 +113,7 @@ fn wall_near_feeler(feeler: &Segment, offset: f64) -> Segment {
 }
 
 // Constructs a scenario for a given arragement of feelers.
-fn scenario(shape: FeelerShape, offset: f64) -> Scenario {
+fn scenario(shape: FeelerShape, offset: f64) -> Box<Scenario> {
     // Work-around for lexical-based borrowing.
     fn walls(feelers: &Vec<Segment>, offset: f64) -> Vec<Segment> {
         let f = |feeler| wall_near_feeler(feeler, offset);
@@ -126,15 +126,23 @@ fn scenario(shape: FeelerShape, offset: f64) -> Scenario {
     let to_world = frame.to_world.clone();
     let f = |x: &Segment| x.transform(&to_world);
     let walls = walls(&feelers, offset).iter().map(f).collect();
-    Scenario::new(Vehicle::new(frame, feelers), walls)
+    Box::new(Scenario::new(Vehicle::new(frame, feelers), walls))
 }
 
-// Constructs scenarios in which feelers and walls do not intersect.
-pub fn case1_scenario(shape: FeelerShape) -> Scenario {
-    scenario(shape, 1f64 + random_unity())
-}
-
-// Constructs scenarios in which one wall intersects with each feeler.
-pub fn case2_scenario(shape: FeelerShape) -> Scenario {
-    scenario(shape, random_unity())
+// Returns a scenario with the given configuration of obstacles. Returns none
+// if it is not possible to create the given scenario.
+pub fn scenario_with_obstacles(obstacles: &Obstacles)
+    -> Option<Box<HasScenario>>
+{
+    let offset1 = || random_unity();
+    let offset2 = || 1f64 + random_unity();
+    match obstacles.details() {
+        (1u32, 0u32) => Some(scenario(FeelerShape::Spear, offset2())),
+        (4u32, 0u32) => Some(scenario(FeelerShape::Fork, offset2())),
+        (9u32, 0u32) => Some(scenario(FeelerShape::Trident, offset2())),
+        (0u32, 1u32) => Some(scenario(FeelerShape::Spear, offset1())),
+        (2u32, 2u32) => Some(scenario(FeelerShape::Fork, offset1())),
+        (6u32, 3u32) => Some(scenario(FeelerShape::Trident, offset1())),
+        _ => None
+    }
 }

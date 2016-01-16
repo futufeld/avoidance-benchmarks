@@ -13,20 +13,16 @@ pub struct Obstacles { total:         u32
 
 impl Obstacles {
     // Returns an Obstacles populated by the given values.
-    pub fn new(total: u32, insignificant: u32, significant: u32) -> Obstacles {
-        Obstacles { total:         total
+    pub fn new(insignificant: u32, significant: u32) -> Obstacles {
+        Obstacles { total:         insignificant + significant
                   , insignificant: insignificant
                   , significant:   significant }
     }
 
-    // Specialisation of new that indicates all obstacles are insignificant.
-    pub fn none_significant(num_obstacles: u32) -> Obstacles {
-        Obstacles::new(num_obstacles, num_obstacles, 0u32)
-    }
-
-    // Specialisation of new that indicates all obstacles are significant.
-    pub fn all_significant(num_obstacles: u32) -> Obstacles {
-        Obstacles::new(num_obstacles, 0u32, num_obstacles)
+    // Returns a tuple containing the number of insignificant and significant
+    // obstacles.
+    pub fn details(&self) -> (u32, u32) {
+        (self.insignificant, self.significant)
     }
 }
 
@@ -34,6 +30,13 @@ impl Obstacles {
 #[derive(Serialize, Deserialize)]
 pub struct Batch { num_runs:  u32
                  , run_times: Vec<i64> }
+
+impl Batch {
+    // Creates a Batch from the given values.
+    pub fn new(num_runs: u32, run_times: Vec<i64>) -> Batch {
+        Batch { num_runs: num_runs, run_times: run_times }
+    }
+}
 
 // Bundles a batch with a label.
 #[derive(Serialize, Deserialize)]
@@ -53,11 +56,12 @@ pub trait HasScenario {
 }
 
 // Runs a series of tests on scenarios generated using the provided function.
-pub fn time_batch<F>(creator: F, num_runs: u32) -> Batch
-    where F: Fn() -> Box<HasScenario>
+pub fn time_batch<F>(obstacles: &Obstacles, creator: F)
+    -> ObstacleBatch
+    where F: Fn(&Obstacles) -> Box<HasScenario>
 {
     let mut scenarios: Vec<Box<HasScenario>> =
-        (0..num_runs).map(|_| creator()).collect();
+        (0..NUM_RUNS).map(|_| creator(obstacles)).collect();
 
     let mut timing = vec!();
     for s in scenarios.iter_mut() {
@@ -67,5 +71,5 @@ pub fn time_batch<F>(creator: F, num_runs: u32) -> Batch
         timing.push(elapsed.num_nanoseconds().unwrap());
     }
 
-    Batch { num_runs: num_runs, run_times: timing }
+    ObstacleBatch::new(obstacles.clone(), Batch::new(NUM_RUNS, timing))
 }

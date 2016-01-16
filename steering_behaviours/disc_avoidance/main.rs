@@ -14,23 +14,16 @@ const FEELER_WIDTH: f64 = 2f64;
 // Starts benchmarks and writes results to file.
 fn main() {
     let run = || {
+        let creator = |o: &Obstacles| -> Box<HasScenario> {
+            scenario_with_obstacles(o, FEELER_LENGTH, FEELER_WIDTH).unwrap()
+        };
+
         let mut results = vec!();
         for i in 1..6 {
-            let creator1 = || -> Box<HasScenario> {
-                Box::new(case1_scenario(i, FEELER_LENGTH, FEELER_WIDTH))
-            };
-            let interaction1 = Obstacles::none_significant(i);
-            let batch1 = time_batch(creator1, NUM_RUNS);
-            let results1 = ObstacleBatch::new(interaction1, batch1);
-            results.push(results1);
-
-            let creator2 = || -> Box<HasScenario> {
-                Box::new(case2_scenario(i, FEELER_LENGTH, FEELER_WIDTH))
-            };
-            let interaction2 = Obstacles::all_significant(i);
-            let batch2 = time_batch(creator2, NUM_RUNS);
-            let results2 = ObstacleBatch::new(interaction2, batch2);
-            results.push(results2);
+            let interaction1 = Obstacles::new(i, 0u32);
+            results.push(time_batch(&interaction1, |x| creator(x)));
+            let interaction2 = Obstacles::new(0u32, i);
+            results.push(time_batch(&interaction2, |x| creator(x)));
         }
         write_results(&results);
     };
