@@ -56,9 +56,8 @@ impl Vehicle {
     // disc.
     pub fn interaction(&self, disc: &Disc) -> Option<Interaction> {
         let local_centre = self.frame.to_local.transform(disc.centre);
-        if local_centre.y.abs() > disc.radius + self.width {
-            return None;
-        }
+        if local_centre.x > self.length { return None; }
+        if local_centre.y.abs() > disc.radius + self.width { return None; }
 
         let r2 = (disc.radius + self.width) * (disc.radius + self.width);
         let y2 = local_centre.y * local_centre.y;
