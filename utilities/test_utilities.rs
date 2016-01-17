@@ -10,7 +10,7 @@ pub fn test_scenarios<F>(obstacles: &Obstacles, creator: F) -> bool
 {
     let significance = obstacles.significant > 0;
     for _ in 0..NUM_RUNS {
-        let scenario = match creator(obstacles) {
+        let mut scenario = match creator(obstacles) {
             Some(scenario) => scenario,
             None => {
                 println!("Creation function failed to return scenario");

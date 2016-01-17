@@ -3,7 +3,7 @@ use super::linalg::vector2d::Vec2D;
 // For scenarios that are testable without needing to access internals.
 pub trait HasScenario {
     fn interactions(&self) -> u32;
-    fn avoidance(&self) -> Option<Vec2D>;
+    fn avoidance(&mut self) -> Option<Vec2D>;
 }
 
 // Contains details about obstacle interactions.

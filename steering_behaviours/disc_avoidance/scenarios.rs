@@ -25,7 +25,8 @@ impl HasScenario for Scenario {
 
     // Returns the avoidance force to be applied to the vehicle according to
     // the steering scenario.
-    fn avoidance(&self) -> Option<Vec2D> {
+    fn avoidance(&mut self) -> Option<Vec2D> {
+        self.vehicle.update();
         self.vehicle.obstacle_avoidance(&self.discs)
     }
 }
