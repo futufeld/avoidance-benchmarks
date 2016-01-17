@@ -10,20 +10,15 @@ use utilities::utilities::{time_execution_seconds, write_results};
 fn main() {
     let run = || {
         let creator = |o: &Obstacles| -> Box<HasScenario> {
-            scenario_with_obstacles(o).unwrap()
+            scenario_with_obstacles(o, false).unwrap()
         };
 
-        let mut interactions = vec!();
-        interactions.push(Obstacles::new(1u32, 0u32));
-        interactions.push(Obstacles::new(4u32, 0u32));
-        interactions.push(Obstacles::new(9u32, 0u32));
-        interactions.push(Obstacles::new(0u32, 1u32));
-        interactions.push(Obstacles::new(2u32, 2u32));
-        interactions.push(Obstacles::new(6u32, 3u32));
-
         let mut results = vec!();
-        for interaction in interactions.iter() {
-            results.push(time_batch(&interaction, |x| creator(x)));
+        for i in 1..6 {
+            let obstacles1 = Obstacles::new(i, 0u32);
+            results.push(time_batch(&obstacles1, |x| creator(x)));
+            let obstacles2 = Obstacles::new(0u32, i);
+            results.push(time_batch(&obstacles2, |x| creator(x)));
         }
         write_results(&results);
     };

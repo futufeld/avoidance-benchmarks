@@ -3,14 +3,10 @@ use types::*;
 use super::common::types::Frame;
 use super::linalg::matrix2d::Mat2D;
 use super::linalg::vector2d::Vec2D;
-use super::utilities::rng_utilities::random_unity;
+use super::utilities::rng_utilities::{random_margin, random_unity};
 use super::utilities::types::{HasScenario, Obstacles};
 
 use std::f64::consts::PI;
-
-// Defines feeler arrangements.
-#[derive(Copy, Clone)]
-pub enum FeelerShape { Spear, Fork, Trident }
 
 // Arrangement of vehicle and line segment obstacles.
 pub struct Scenario { pub vehicle: Vehicle
@@ -53,41 +49,29 @@ fn random_frame() -> Frame {
     Frame::new(position, 2f64 * PI * random_unity())
 }
 
-// Returns the feelers corresponding to an arrangement.
-fn feelers(arrangement: FeelerShape) -> Vec<Segment> {
-    // Define feelers.
-    let feeler_c = Segment::new( Vec2D::new(2f64, 0f64)
-                               , Vec2D::new(12f64, 0f64) ).unwrap();
-    let feeler_l = Segment::new( Vec2D::new(0f64, 2f64)
-                               , Vec2D::new(5f64, 7f64) ).unwrap();
-    let feeler_r = Segment::new( Vec2D::new(0f64, -2f64)
-                               , Vec2D::new(5f64, -7f64) ).unwrap();
+// Returns a feeler that extends ahead of a vehicle.
+fn feeler() -> Segment {
+    Segment::new( Vec2D::new(2f64, 0f64), Vec2D::new(12f64, 0f64) ).unwrap()
+}
 
-    // Determine feelers to return based on feeler shape.
-    let mut feelers = vec!();
-    match arrangement {
-        FeelerShape::Spear => feelers.push(feeler_c),
-        FeelerShape::Fork => {
-            feelers.push(feeler_l);
-            feelers.push(feeler_r);
-        },
-        FeelerShape::Trident => {
-            feelers.push(feeler_l);
-            feelers.push(feeler_c);
-            feelers.push(feeler_r);
-        }
-    };
-    feelers
+// Returns a vector of whiskers - feelers that extend to the left and right of
+// a hypothetical vehicle.
+fn whiskers() -> Vec<Segment> {
+    let l = Segment::new( Vec2D::new(0f64,  2f64), Vec2D::new(5f64,  7f64) );
+    let r = Segment::new( Vec2D::new(0f64, -2f64), Vec2D::new(5f64, -7f64) );
+    vec!(l.unwrap(), r.unwrap())
 }
 
 // Returns a wall segment that is near the given feeler.
-fn wall_near_feeler(feeler: &Segment, offset: f64) -> Segment {
+fn wall_near_feeler(feeler: &Segment, significant: bool) -> Segment {
     // Determine feeler transform.
     let position = feeler.point1;
     let orientation = feeler.unit.angle();
     let to_world = Mat2D::rotation(orientation).shift(position);
 
     // Create intersecting segment.
+    let mut offset = random_margin();
+    if !significant { offset += 1f64; }
     let intersection = Vec2D::unitx().mul(feeler.length * offset);
     let angle = (0.25f64 + 0.5f64 * random_unity()) * PI;
     let local_point1 = intersection.add(Vec2D::polar(angle, 0.5f64));
@@ -99,36 +83,29 @@ fn wall_near_feeler(feeler: &Segment, offset: f64) -> Segment {
 }
 
 // Constructs a scenario for a given arragement of feelers.
-fn scenario(shape: FeelerShape, offset: f64) -> Box<Scenario> {
-    // Work-around for lexical borrowing constraint.
-    fn walls(feelers: &Vec<Segment>, offset: f64) -> Vec<Segment> {
-        let f = |feeler| wall_near_feeler(feeler, offset);
-        feelers.iter().map(f).collect()
-    }
-
-    // Create vehicle and walls.
-    let feelers = feelers(shape);
+fn scenario(num_obstacles: u32, significant: bool, has_whiskers: bool)
+    -> Box<Scenario>
+{
+    let feeler = feeler();
     let frame = random_frame();
     let to_world = frame.to_world.clone();
-    let f = |x: &Segment| x.transform(&to_world);
-    let walls = walls(&feelers, offset).iter().map(f).collect();
+
+    let f = |_| wall_near_feeler(&feeler, significant).transform(&to_world);
+    let walls = (0..num_obstacles).map(f).collect();
+
+    let mut feelers = vec!(feeler.clone());
+    if has_whiskers { feelers.extend(whiskers()); }
     Box::new(Scenario::new(Vehicle::new(frame, feelers), walls))
 }
 
 // Returns a scenario with the given configuration of obstacles. Returns none
 // if it is not possible to create the given scenario.
-pub fn scenario_with_obstacles(obstacles: &Obstacles)
+pub fn scenario_with_obstacles(obstacles: &Obstacles, has_whiskers: bool)
     -> Option<Box<HasScenario>>
 {
-    let offset1 = || random_unity();
-    let offset2 = || 1f64 + random_unity();
     match obstacles.details() {
-        (1u32, 0u32) => Some(scenario(FeelerShape::Spear, offset2())),
-        (4u32, 0u32) => Some(scenario(FeelerShape::Fork, offset2())),
-        (9u32, 0u32) => Some(scenario(FeelerShape::Trident, offset2())),
-        (0u32, 1u32) => Some(scenario(FeelerShape::Spear, offset1())),
-        (2u32, 2u32) => Some(scenario(FeelerShape::Fork, offset1())),
-        (6u32, 3u32) => Some(scenario(FeelerShape::Trident, offset1())),
+        (num_obs, 0u32) => Some(scenario(num_obs, false, has_whiskers)),
+        (0u32, num_obs) => Some(scenario(num_obs, true, has_whiskers)),
         _ => None
     }
 }

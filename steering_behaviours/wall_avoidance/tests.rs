@@ -1,20 +1,19 @@
 #![cfg(test)]
 
 use super::scenarios::scenario_with_obstacles;
-use super::utilities::types::Obstacles;
+use super::utilities::types::{HasScenario, Obstacles};
 use super::utilities::test_utilities::test_scenarios;
 
 #[test]
 fn test() {
-    let mut obstacles = vec!();
-    obstacles.push(Obstacles::new(1u32, 0u32));
-    obstacles.push(Obstacles::new(4u32, 0u32));
-    obstacles.push(Obstacles::new(9u32, 0u32));
-    obstacles.push(Obstacles::new(0u32, 1u32));
-    obstacles.push(Obstacles::new(2u32, 2u32));
-    obstacles.push(Obstacles::new(6u32, 3u32));
+    let creator = |o: &Obstacles| -> Option<Box<HasScenario>> {
+        scenario_with_obstacles(o, false)
+    };
 
-    for obstacle in obstacles.iter() {
-        assert!(test_scenarios(&obstacle, scenario_with_obstacles));
+    for i in 1..6 {
+        let obstacles1 = Obstacles::new(i, 0u32);
+        assert!(test_scenarios(&obstacles1, |x| creator(x)));
+        let obstacles2 = Obstacles::new(0u32, i);
+        assert!(test_scenarios(&obstacles2, |x| creator(x)));
     }
 }
