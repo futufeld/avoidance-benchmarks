@@ -1,5 +1,5 @@
 [root]
-name = "obstacle_avoidance"
+name = "disc_avoidance"
 version = "0.1.0"
 dependencies = [
  "common 0.1.0",

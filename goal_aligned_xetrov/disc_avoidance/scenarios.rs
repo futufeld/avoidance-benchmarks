@@ -7,7 +7,7 @@ use super::utilities::rng_utilities::*;
 use super::utilities::types::{HasScenario, Obstacles};
 
 // Returns a disc positioned semi-randomly with respect to `potential_scale`
-// and `dist_offset` transformed by `to_world`.
+// transformed by `to_world`.
 fn near_disc(significant: bool, potential_scale: f64, transform: &Mat2D)
     -> Box<HasSource>
 {

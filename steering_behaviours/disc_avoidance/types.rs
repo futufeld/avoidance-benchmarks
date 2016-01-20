@@ -68,7 +68,7 @@ impl Vehicle {
 
     // Returns a force intended to prevent collision between the vehicle and a
     // collection of discs.
-    pub fn obstacle_avoidance(&self, discs: &Vec<Disc>) -> Option<Vec2D> {
+    pub fn disc_avoidance(&self, discs: &Vec<Disc>) -> Option<Vec2D> {
 
         // Collect interactions between vehicle's feeler and discs.
         let mut nearest: Option<Interaction> = None;
