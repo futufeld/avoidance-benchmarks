@@ -2,35 +2,34 @@
 
 ## Overview
 
-This project includes multiple programs that benchmark various collision avoidance algorithms used in autonomous steering. Four algorithms are considered:
+This project includes multiple programs that benchmark two collision avoidance approaches used in autonomous steering: [steering behaviours](http://www.red3d.com/cwr/steer/gdc99/) and the goal-aligned xetrov system. Scenarios involving disc, wall and vehicle obstacles are considered.
 
-- Goal-aligned xetrov avoidance (disc and line segment avoidance)
-- [Steering behaviours](http://www.red3d.com/cwr/steer/)
-    - Obstacle avoidance (circular obstacles)
-    - Wall avoidance (line segment obstacles)
-    - Vehicle avoidance (moving obstacles)
-
-## Structure
+## Project structure
 
 A breakdown of this project:
 
 - `goal_aligned_xetrov`: Contains subprojects that benchmark collision avoidance using the goal-aligned xetrov algorithm.
-    - `obstacle_avoidance`*: Avoidance of disc obstacles.
-- `steering_behaviours`: Contains subprojects that benchmark collision avoidance _steering behaviours_.
-    - `obstacle_avoidance`*: Avoidance of disc obstacles.
-    - `wall_avoidance`*: Avoidance of wall segments.
+    - `common`: Functionality common to the goal-aligned xetrov benchmark programs.
+- `steering_behaviours`: Contains subprojects that benchmark the steering behaviours intended to produce collision avoidance.
     - `common`: Functionality common to the steering behaviours benchmark programs.
 - `linalg`: Linear algebra functionality common to all subprojects.
 - `utilities`: Various benchmarking utilities.
 
-Folders marked with an asterisk contain benchmark programs which can be run as follows:
-
+The folders `disc_avoidance`, `wall_avoidance` and `vehicle_avoidance` in both the `goal_aligned_xetrov` and `steering_behaviours` contain programs that can be run as follows:
 ```
 cargo run FILENAME
 ```
+where `FILENAME` specifies the file in which to write benchmark results. The output format is JSON.
 
-where `FILENAME` specifies the file to write benchmark results.
+## Benchmarking strategy
 
-## Strategy
+Each program times the evaluation of an algorithm using randomly generated scenarios. Each scenario contains a steering vehicle and a number of obstacles. They represent the state of a steering simulation at a single iteration. Each benchmark program benchmarks the algorithm in scenarios, involving varying numbers of obstacles, in which all obstacles either present a collision risk or do not present a collision risk. Note that each algorithm consists of two phases:
 
-Broadly, each algorithm is tested with randomly generated inputs contrived to involve a specific number of collisions. Due to the speed of the algorithms, each benchmark consists of thousands of executions, called a _run_. Multiple runs are performed to produce a _batch_. The results of a batch are written, in JSON, to the file specified on the command line of the benchmark program. Refer to READMEs in subprojects for more details.
+1. Assessment of collision risk: whether the vehicle may collide with the obstacle if it does not modify its trajectory.
+2. Evaluation of steering force: if any obstacles present a collision risk, what is the appropriate steering response?
+
+The benchmarking strategy provides some insight into the relative computational cost of these aspects of the algorithms. Each algorithm is evaluated 10,000 times using independently-generated scenarios in an environment isolated from the compiler's optimiser.
+
+## Running the benchmarks
+
+The software depends on [Serde](https://github.com/serde-rs/serde) for encoding its output and makes use of _serde_macros_. Therefore, it must be compiled with Rust nightly because Rust stable does not yet support compiler plugins.
