@@ -32,4 +32,4 @@ The benchmarking strategy provides some insight into the relative computational 
 
 ## Running the benchmarks
 
-The software depends on [Serde](https://github.com/serde-rs/serde) for encoding its output and makes use of _serde_macros_. Therefore, it must be compiled with Rust nightly because Rust stable does not yet support compiler plugins.
+The software uses compiler plugins and therefore depends on the nightly version of the Rust compiler.
