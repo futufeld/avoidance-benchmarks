@@ -57,12 +57,16 @@ impl Vehicle {
     pub fn interaction(&self, disc: &Disc) -> Option<Interaction> {
         let local_centre = self.frame.to_local.transform(disc.centre);
         if local_centre.x > self.length { return None; }
-        if local_centre.y.abs() > disc.radius + self.width { return None; }
 
-        let r2 = (disc.radius + self.width) * (disc.radius + self.width);
+        let expanded_radius = disc.radius + self.width;
+        if local_centre.y.abs() > expanded_radius { return None; }
+
+        let r2 = expanded_radius * expanded_radius;
         let y2 = local_centre.y * local_centre.y;
-        let mut x = -self.length * (local_centre.x + (r2 - y2).sqrt());
-        if x < 0f64 { x = 0f64; }
+        let sqrt_part = (r2 - y2).sqrt();
+
+        let mut x = local_centre.x - sqrt_part;
+        if x < 0f64 { x = local_centre.x + sqrt_part; }
         Some(Interaction::new(x, local_centre, disc.radius))
     }
 
@@ -88,7 +92,7 @@ impl Vehicle {
         let near: Interaction = nearest.unwrap();
 
         // Determine steering force.
-        let multiplier = 1f64 + (self.length - near.centre.x) / self.length;
+        let multiplier = 1f64 + (self.length - near.dist) / self.length;
         let force_x = (near.radius - near.centre.x) * BRAKING_WEIGHT;
         let force_y = (near.radius - near.centre.y) * multiplier;
         Some(self.frame.to_world.transform(Vec2D::new(force_x, force_y)))

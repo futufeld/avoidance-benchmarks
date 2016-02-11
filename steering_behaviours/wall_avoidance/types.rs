@@ -92,7 +92,7 @@ impl Segment {
             LineLine::Intersect(u1, u2) => {
                 let u1_xsect = u1 >= 0f64 && u1 <= 1f64;
                 let u2_xsect = u2 >= 0f64 && u2 <= 1f64;
-                
+
                 if !u1_xsect || !u2_xsect { return None; }
 
                 let diff = self.point2.sub(self.point1);
@@ -139,13 +139,11 @@ impl Vehicle {
     {
         match feeler.segment_intersection(wall) {
             Some(point) => {
-                let mut normal = wall.normal;
-                if normal.dot(feeler.unit) > 0f64 {
-                    normal = normal.neg();
+                let dist = feeler.point2.sub(point).mag();
+                let mut force = wall.normal.mul(dist);
+                if force.dot(feeler.unit) > 0f64 {
+                    force = force.neg();
                 }
-
-                let dist = feeler.point1.sub(point).mag();
-                let force = normal.mul(feeler.length - dist);
                 Some(Interaction::new(force, dist))
             },
             None => None

@@ -1,5 +1,4 @@
 use super::linalg::vector2d::{EPSILON, Vec2D};
-use super::utilities::rng_utilities::random_tau;
 
 // Data describing approach between two vehicles.
 #[derive(Copy, Clone)]
@@ -28,7 +27,7 @@ impl Vehicle {
     // Returns the interaction between this vehicle and the given vehicle.
     pub fn interaction(&self, vehicle: &Vehicle) -> Option<Interaction> {
         // Determine relative position.
-        let relative_position = vehicle.position.sub(self.position);
+        let relative_position = self.position.sub(vehicle.position);
         let distance = relative_position.mag();
 
         // Determine time to collision, skipping this vehicle if
@@ -39,7 +38,7 @@ impl Vehicle {
         let numerator = relative_position.dot(relative_velocity);
         let denominator = relative_speed * relative_speed;
         if denominator < EPSILON { return None; }
-        let time_to_collision = -numerator / denominator;
+        let time_to_collision = numerator / denominator;
 
         // Check if collision will occur.
         if time_to_collision < EPSILON { return None; }
@@ -91,14 +90,8 @@ impl Vehicle {
             rel_pos.add(rel_vel.mul(interaction.time_to_collision))
         };
 
-        // Determine avoidance force. If the two vehicles share the same
-        // position a random vector is returned. (In a real-world implemen-
-        // tation another mechanism would be required to resolve this case.)
-        let min_separation = relative_position.mag();
-        if min_separation < EPSILON {
-            return Some(Vec2D::polar(random_tau(), self.max_acceleration));
-        }
-        let normalised = relative_position.mul(1f64 / min_separation);
-        Some(normalised.mul(self.max_acceleration))
+        // Determine avoidance force.
+        let factor = self.max_acceleration / interaction.min_separation;
+        Some(relative_position.mul(factor))
     }
 }
