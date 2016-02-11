@@ -14,10 +14,11 @@ nightly = ["aster/nightly"]
 path = "../linalg"
 
 [dependencies]
-aster = { version = "0.9.2", default_features = false }
+aster = "0.10"
 getopts = "0.2"
+quasi = "0.4.0"
 rand = "0.3"
-serde = "0.6.6"
+serde = "0.6.11"
 serde_json = "0.6.0"
-serde_macros = "0.6.5"
+serde_macros = "0.6.11"
 time = "*"
