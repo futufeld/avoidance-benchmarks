@@ -1,5 +1,5 @@
-extern crate disc_avoidance;
-use disc_avoidance::scenarios::*;
+extern crate disk_avoidance;
+use disk_avoidance::scenarios::*;
 
 extern crate utilities;
 use utilities::bench_utilities::time_batch;

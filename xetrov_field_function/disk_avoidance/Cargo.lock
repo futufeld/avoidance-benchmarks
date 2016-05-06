@@ -1,5 +1,5 @@
 [root]
-name = "disc_avoidance"
+name = "disk_avoidance"
 version = "1.0.0"
 dependencies = [
  "common 1.0.0",

@@ -8,16 +8,16 @@ use super::utilities::types::{HasScenario, Obstacles};
 
 use std::f64::consts::PI;
 
-// Arrangement of vehicle and discs to be used in benchmarks.
+// Arrangement of vehicle and disks to be used in benchmarks.
 pub struct Scenario { pub vehicle: Vehicle
-                    , pub discs:   Vec<Disc> }
+                    , pub disks:   Vec<Disk> }
 
 impl HasScenario for Scenario {
     // Returns the interactions between the vehicle and obstacles in the
     // scenario.
     fn interactions(&self) -> u32 {
         let mut count = 0;
-        for vehicle in self.discs.iter() {
+        for vehicle in self.disks.iter() {
             if self.vehicle.interaction(vehicle).is_some() { count += 1; }
         }
         count
@@ -27,14 +27,14 @@ impl HasScenario for Scenario {
     // the steering scenario.
     fn avoidance(&mut self) -> Option<Vec2D> {
         self.vehicle.update();
-        self.vehicle.disc_avoidance(&self.discs)
+        self.vehicle.disk_avoidance(&self.disks)
     }
 }
 
 impl Scenario {
     // Convenience function for creating scenarios.
-    fn new(vehicle: Vehicle, discs: Vec<Disc>) -> Scenario {
-        Scenario { vehicle: vehicle, discs: discs }
+    fn new(vehicle: Vehicle, disks: Vec<Disk>) -> Scenario {
+        Scenario { vehicle: vehicle, disks: disks }
     }
 }
 
@@ -47,10 +47,10 @@ fn random_vehicle(length: f64, width: f64) -> Vehicle {
     Vehicle::new(vehicle, length, width)
 }
 
-// Returns a disc with a semi-random centre determined by `x_scale`, `y_scale`
+// Returns a disk with a semi-random centre determined by `x_scale`, `y_scale`
 // and `y_offset`, which is then transformed by `transform`.
-fn near_disc(x_scale: f64, y_scale: f64, significant: bool, transform: &Mat2D)
-    -> Disc
+fn near_disk(x_scale: f64, y_scale: f64, significant: bool, transform: &Mat2D)
+    -> Disk
 {
     let radius = y_scale * random_margin();
     let mut offset = random_margin();
@@ -62,19 +62,19 @@ fn near_disc(x_scale: f64, y_scale: f64, significant: bool, transform: &Mat2D)
 
     let local_centre = Vec2D::new(local_x, local_y);
     let centre = transform.transform(local_centre);
-    Disc::new(centre, radius)
+    Disk::new(centre, radius)
 }
 
 // Returns a semi-random scenario involving `n` obstacles positioned with
-// respect to `x_scale`, `y_scale` and `y_offset` (see `near_disc`).
+// respect to `x_scale`, `y_scale` and `y_offset` (see `near_disk`).
 fn scenario(n: u32, x_scale: f64, y_scale: f64, significant: bool)
     -> Box<Scenario>
 {
     let vehicle = random_vehicle(x_scale, y_scale);
     let to_world = vehicle.frame.to_world.clone();
-    let f = |_| near_disc(x_scale, y_scale, significant, &to_world);
-    let discs: Vec<Disc> = (0..n).map(f).collect();
-    Box::new(Scenario::new(vehicle, discs))
+    let f = |_| near_disk(x_scale, y_scale, significant, &to_world);
+    let disks: Vec<Disk> = (0..n).map(f).collect();
+    Box::new(Scenario::new(vehicle, disks))
 }
 
 // Returns a scenario with the given configuration of obstacles. Returns none

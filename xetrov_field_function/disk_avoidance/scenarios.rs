@@ -6,9 +6,9 @@ use super::linalg::vector2d::Vec2D;
 use super::utilities::rng_utilities::*;
 use super::utilities::types::{HasScenario, Obstacles};
 
-// Returns a disc positioned semi-randomly with respect to `potential_scale`
+// Returns a disk positioned semi-randomly with respect to `potential_scale`
 // transformed by `to_world`.
-fn near_disc(significant: bool, potential_scale: f64, transform: &Mat2D)
+fn near_disk(significant: bool, potential_scale: f64, transform: &Mat2D)
     -> Box<HasSource>
 {
     let radius = potential_scale * random_margin();
@@ -17,17 +17,17 @@ fn near_disc(significant: bool, potential_scale: f64, transform: &Mat2D)
     let offset = radius + potential_scale * dist_offset;
 
     let local_centre = Vec2D::polar(random_tau(), offset);
-    Box::new(Disc::new(transform.transform(local_centre), radius))
+    Box::new(Disk::new(transform.transform(local_centre), radius))
 }
 
-// Helper function for creating random arrangements of discs and a vehicle.
+// Helper function for creating random arrangements of disks and a vehicle.
 fn scenario(num_obstacles: u32, significant: bool) -> Box<Scenario> {
     let vehicle = random_vehicle();
     let position = vehicle.look_ahead();
     let orientation = vehicle.velocity.angle();
     let to_world = Mat2D::rotation(orientation).shift(position);
 
-    let f = |_| near_disc(significant, POTENTIAL_SCALE, &to_world);
+    let f = |_| near_disk(significant, POTENTIAL_SCALE, &to_world);
     Box::new(Scenario::new(vehicle, (0..num_obstacles).map(f).collect()))
 }
 

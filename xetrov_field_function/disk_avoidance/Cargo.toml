@@ -1,5 +1,5 @@
 [package]
-name = "disc_avoidance"
+name = "disk_avoidance"
 version = "1.0.0"
 authors = ["Shannon Pace <futufeld@gmail.com>"]
 
@@ -10,7 +10,7 @@ test = false
 docs = false
 
 [lib]
-name = "disc_avoidance"
+name = "disk_avoidance"
 path = "lib.rs"
 
 [dependencies.common]
@@ -21,3 +21,6 @@ path = "../../linalg"
 
 [dependencies.utilities]
 path = "../../utilities"
+
+[dependencies]
+time = "*"

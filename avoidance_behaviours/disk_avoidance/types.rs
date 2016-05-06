@@ -4,26 +4,26 @@ use super::linalg::vector2d::Vec2D;
 // Weighting factor for obstacle avoidance steering force.
 const BRAKING_WEIGHT: f64 = 2f64;
 
-// Defines a disc.
-pub struct Disc { pub centre: Vec2D
+// Defines a disk.
+pub struct Disk { pub centre: Vec2D
                 , pub radius: f64 }
 
-impl Disc {
-    // Creates a disc from the given centre and radius.
-    pub fn new(centre: Vec2D, radius: f64) -> Disc {
-        Disc { centre: centre, radius: radius }
+impl Disk {
+    // Creates a disk from the given centre and radius.
+    pub fn new(centre: Vec2D, radius: f64) -> Disk {
+        Disk { centre: centre, radius: radius }
     }
 }
 
-// Result of interaction between feeler and disc.
+// Result of interaction between feeler and disk.
 pub enum FeelerResult {
     Case1,
     Case2(Interaction),
     Case3(Interaction)
 }
 
-// Pairs a disc with a distance. Used to capture interactions between vehicle
-// feeler and discs.
+// Pairs a disk with a distance. Used to capture interactions between vehicle
+// feeler and disks.
 #[derive(Copy, Clone)]
 pub struct Interaction { dist:   f64
                        , centre: Vec2D
@@ -53,12 +53,12 @@ impl Vehicle {
     }
 
     // Returns the interaction between the vehicle's feeler and the given
-    // disc.
-    pub fn interaction(&self, disc: &Disc) -> Option<Interaction> {
-        let local_centre = self.frame.to_local.transform(disc.centre);
+    // disk.
+    pub fn interaction(&self, disk: &Disk) -> Option<Interaction> {
+        let local_centre = self.frame.to_local.transform(disk.centre);
         if local_centre.x > self.length { return None; }
 
-        let expanded_radius = disc.radius + self.width;
+        let expanded_radius = disk.radius + self.width;
         if local_centre.y.abs() > expanded_radius { return None; }
 
         let r2 = expanded_radius * expanded_radius;
@@ -67,19 +67,19 @@ impl Vehicle {
 
         let mut x = local_centre.x - sqrt_part;
         if x < 0f64 { x = local_centre.x + sqrt_part; }
-        Some(Interaction::new(x, local_centre, disc.radius))
+        Some(Interaction::new(x, local_centre, disk.radius))
     }
 
     // Returns a force intended to prevent collision between the vehicle and a
-    // collection of discs.
-    pub fn disc_avoidance(&self, discs: &Vec<Disc>) -> Option<Vec2D> {
+    // collection of disks.
+    pub fn disk_avoidance(&self, disks: &Vec<Disk>) -> Option<Vec2D> {
 
-        // Collect interactions between vehicle's feeler and discs.
+        // Collect interactions between vehicle's feeler and disks.
         let mut nearest: Option<Interaction> = None;
-        for disc in discs.iter() {
+        for disk in disks.iter() {
 
             // Check if interaction is closer than known nearest.
-            let interaction = self.interaction(disc);
+            let interaction = self.interaction(disk);
             if let Some(int) = interaction {
                 if let Some(near) = nearest {
                     if int.dist < near.dist { nearest = interaction }

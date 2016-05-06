@@ -2,12 +2,12 @@ use super::common::types::HasSource;
 use super::linalg::matrix2d::Mat2D;
 use super::linalg::vector2d::Vec2D;
 
-// Defines transforms in and out of a space containing a disc.
-pub struct Disc { pub to_world: Mat2D
+// Defines transforms in and out of a space containing a disk.
+pub struct Disk { pub to_world: Mat2D
                 , pub to_local: Mat2D
                 , pub radius:   f64 }
 
-impl HasSource for Disc {
+impl HasSource for Disk {
     // Returns the source corresponding to the given point.
     fn source(&self, v: Vec2D) -> Vec2D {
         let local = self.to_local.transform(v);
@@ -18,11 +18,11 @@ impl HasSource for Disc {
     }
 }
 
-impl Disc {
-    // Creates a disc from a position and radius.
-    pub fn new(pos: Vec2D, radius: f64) -> Disc {
+impl Disk {
+    // Creates a disk from a position and radius.
+    pub fn new(pos: Vec2D, radius: f64) -> Disk {
         let to_world = Mat2D::translation(pos);
         let to_local = Mat2D::translation(pos.neg());
-        Disc { to_world: to_world, to_local: to_local, radius: radius }
+        Disk { to_world: to_world, to_local: to_local, radius: radius }
     }
 }
