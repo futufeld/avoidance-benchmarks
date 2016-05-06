@@ -10,7 +10,7 @@ use utilities::utilities::{time_execution_seconds, write_results};
 fn main() {
     let run = || {
         let creator = |o: &Obstacles| -> Box<HasScenario> {
-            scenario_with_obstacles(o, false).unwrap()
+            scenario_with_obstacles(o, true).unwrap()
         };
 
         let mut results = vec!();
