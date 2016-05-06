@@ -11,9 +11,9 @@ impl HasSource for Disc {
     // Returns the source corresponding to the given point.
     fn source(&self, v: Vec2D) -> Vec2D {
         let local = self.to_local.transform(v);
-        let mag = local.mag();
-        if mag <= self.radius { return v; }
-        let source = local.mul(self.radius / mag);
+        let mag_sq = local.mag_sq();
+        if mag_sq <= self.radius * self.radius { return v; }
+        let source = local.mul(self.radius / mag_sq.sqrt());
         self.to_world.transform(source)
     }
 }
