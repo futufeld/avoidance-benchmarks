@@ -39,3 +39,9 @@ Each algorithm is evaluated 1,000,000 times using independently-generated scenar
 ## Running the benchmarks
 
 The software uses compiler plugins and therefore depends on the nightly version of the Rust compiler.
+
+Note that the branches contain two variants relevant to the performance of the benchmarks and may have implications depending on how the steering behaviour algorithms are used:
+
+* The `no-matrix` branch omits the matrix update step from the implementations of `avoid block` and `avoid wall`. This step is necessary for the algorithms to function, but the matrices only need to be generated once per simulation iteration and can be shared between the two algorithms.
+
+* The `whiskers` branch executes the `avoid wall` implementation using a three feeler configuration (one central feeler and two 'whiskers'). The default is a single, central feeler.
