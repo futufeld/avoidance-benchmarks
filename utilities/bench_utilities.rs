@@ -4,7 +4,7 @@ use super::types::{HasScenario, Obstacles};
 
 // Number of scenarios to run for each benchmark.
 #[allow(dead_code)]
-pub const NUM_RUNS: u32 = 10_000;
+pub const NUM_RUNS: u32 = 1_000_000;
 
 // Contains details and results of a batch of benchmarks.
 #[derive(Serialize, Deserialize)]

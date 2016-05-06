@@ -34,7 +34,7 @@ Each program times the evaluation of an algorithm using randomly generated scena
 
 This benchmarking strategy provides some insight into the relative computational cost of assessing obstacle risk and evaluating a result using each algorithm.
 
-Each algorithm is evaluated 10,000 times using independently-generated scenarios. The algorithms' implementations are isolated from the compiler's optimiser.
+Each algorithm is evaluated 1,000,000 times using independently-generated scenarios. The algorithms' implementations are isolated from the compiler's optimiser.
 
 ## Running the benchmarks
 
