@@ -38,7 +38,7 @@ Each algorithm is evaluated 1,000,000 times using independently-generated scenar
 
 ## Running the benchmarks
 
-The software uses compiler plugins and therefore depends on the nightly version of the Rust compiler.
+The software uses unstable features and therefore depends on the nightly version of the Rust compiler.
 
 Note that the branches contain two variants relevant to the performance of the benchmarks and may have implications depending on how the steering behaviour algorithms are used:
 

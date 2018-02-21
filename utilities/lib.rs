@@ -1,10 +1,11 @@
-#![feature(custom_derive, plugin, test)]
-#![plugin(serde_macros)]
+#![feature(test)]
 
 extern crate getopts;
 extern crate linalg;
 extern crate rand;
 extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate serde_json;
 extern crate test;
 extern crate time;
